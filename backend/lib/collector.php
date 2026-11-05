@@ -84,7 +84,7 @@ function bhw_slug(string $title, string $hash): string
 }
 
 /** Stores one feed entry. Returns stored_published, stored_pending, duplicate, not_health or invalid. */
-function bhw_ingest(PDO $db, array $it, string $sourceName): string
+function bhw_ingest(PDO $db, array $it, string $sourceName, array $feed = []): string
 {
     $title = html_entity_decode($it['title'], ENT_QUOTES | ENT_HTML5, 'UTF-8');
     if ($title === '' || !bhw_is_http_url($it['url'])) {
@@ -92,6 +92,10 @@ function bhw_ingest(PDO $db, array $it, string $sourceName): string
     }
     $summary = bhw_excerpt($it['html']);
     $text = $title . ' ' . $summary;
+    // Region-wide papers: keep only stories that actually mention Bohol.
+    if (!empty($feed['require_bohol']) && !preg_match('/\b(Bohol|Boholano|Tagbilaran|Panglao)\b/iu', $text)) {
+        return 'not_bohol';
+    }
     $category = bhw_category($text);
     if ($category === null) {
         return 'not_health';
@@ -110,14 +114,20 @@ function bhw_ingest(PDO $db, array $it, string $sourceName): string
     }
     $towns = bhw_municipalities($text);
     $serious = bhw_is_serious($text);
-    $state = $serious ? 'pending' : 'published';
+    // With no one reviewing (the GitHub-hosted feed), serious stories publish as unconfirmed News reports.
+    // They still can't become Official or an alert without a person editing data/seed.json.
+    $auto = !empty(bhw_config()['auto_publish']);
+    $hold = $serious && !$auto;
+    $state = $hold ? 'pending' : 'published';
+    $scope = bhw_scope($text, $towns);
+    $notify = $auto && $scope !== 'national' ? 1 : 0;
     $db->prepare('INSERT INTO reports (slug, title, title_norm, summary, facts, pub_date, category, trust, alert, scope,
         municipalities, source_name, source_url, url_hash, state, pub_seq, serious, notify, origin, created_at)
         VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)')->execute([
         bhw_slug($title, $hash), mb_substr($title, 0, 400, 'UTF-8'), mb_substr($norm, 0, 400, 'UTF-8'),
-        $summary !== '' ? $summary : $title, '[]', $date, $category, 'news', null, bhw_scope($text, $towns),
-        json_encode($towns, JSON_UNESCAPED_UNICODE), $sourceName, $it['url'], $hash, $state, $serious ? 0 : bhw_next_pub_seq($db), $serious ? 1 : 0, 0,
+        $summary !== '' ? $summary : $title, '[]', $date, $category, ($feed['trust'] ?? '') === 'official' ? 'official' : 'news', null, $scope,
+        json_encode($towns, JSON_UNESCAPED_UNICODE), $sourceName, $it['url'], $hash, $state, $hold ? 0 : bhw_next_pub_seq($db), $serious ? 1 : 0, $notify,
         'feed', date('c'),
     ]);
-    return $serious ? 'stored_pending' : 'stored_published';
+    return $hold ? 'stored_pending' : 'stored_published';
 }

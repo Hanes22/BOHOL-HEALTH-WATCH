@@ -33,6 +33,7 @@ try {
     echo json_encode([
         'generated' => bhw_meta_get($db, 'last_collect') ?? date('Y-m-d'),
         'max_seq' => $max,
+        'metrics' => json_decode((string) bhw_meta_get($db, 'metrics'), true),
         'items' => $items,
     ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 } catch (Throwable $e) {

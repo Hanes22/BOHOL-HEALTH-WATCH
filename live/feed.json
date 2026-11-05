@@ -1,0 +1,363 @@
+{
+    "generated": "2026-11-05",
+    "max_seq": 13,
+    "metrics": {
+        "dengue": {
+            "cases": 1883,
+            "deaths": 21,
+            "from": "2026-01-04",
+            "to": "2026-08-22",
+            "towns": [
+                "Talibon",
+                "Tagbilaran City",
+                "Ubay",
+                "Getafe",
+                "Tubigon"
+            ],
+            "source": {
+                "name": "Philippine Daily Inquirer",
+                "url": "https://newsinfo.inquirer.net/2294147/bohol-declares-province-wide-dengue-outbreak"
+            }
+        },
+        "national": {
+            "prevLabel": "17 to 30 Sep",
+            "curLabel": "1 to 14 Oct",
+            "rows": [
+                {
+                    "name": "Dengue",
+                    "prev": 22575,
+                    "cur": 23842
+                },
+                {
+                    "name": "Flu-like illness",
+                    "prev": 11517,
+                    "cur": 15042
+                },
+                {
+                    "name": "Leptospirosis",
+                    "prev": 1198,
+                    "cur": 554
+                }
+            ],
+            "source": {
+                "name": "Daily Tribune, citing DOH",
+                "url": "https://tribune.net.ph/2026/11/04/doh-logs-31-flu-like-illnesses-surge"
+            }
+        }
+    },
+    "items": [
+        {
+            "seq": 2,
+            "id": "flu-surge-oct",
+            "title": "Flu-like illness up 31% nationwide, with Central Visayas among the sharpest rises",
+            "date": "2026-11-05",
+            "category": "respiratory",
+            "trust": "official",
+            "alert": "watch",
+            "scope": "region",
+            "municipalities": [],
+            "summary": "DOH counted 15,042 influenza-like illness cases nationwide from 1 to 14 October, up from 11,517 in the previous two weeks.",
+            "facts": [
+                "Central Visayas is one of three regions with the highest percentage increases.",
+                "Dengue nationwide: 23,842 cases from 1 to 14 October, up 6% from the previous two weeks.",
+                "Leptospirosis nationwide: 554 cases from 1 to 14 October, down 54% from the previous two weeks."
+            ],
+            "source": {
+                "name": "Daily Tribune, citing DOH",
+                "url": "https://tribune.net.ph/2026/11/04/doh-logs-31-flu-like-illnesses-surge"
+            },
+            "notify": false,
+            "alertNote": "Regional figure. The report does not mention Bohol."
+        },
+        {
+            "seq": 1,
+            "id": "snakebite-inabanga",
+            "title": "Child dies after suspected snakebite in Inabanga",
+            "date": "2026-11-05",
+            "category": "bites",
+            "trust": "news",
+            "alert": null,
+            "scope": "municipal",
+            "municipalities": [
+                "Inabanga"
+            ],
+            "summary": "A 7-year-old girl reportedly died after a suspected cobra bite in Barangay Ubojan on the evening of 4 November.",
+            "facts": [
+                "The bite reportedly happened shortly after 6 p.m. near her grandmother's house.",
+                "She was taken to Clarin Community Hospital and declared dead on arrival.",
+                "Details come from initial information. The report does not name an official source."
+            ],
+            "source": {
+                "name": "Bohol Island News",
+                "url": "https://boholislandnews.com/2026/11/05/7-year-old-girl-dies-after-suspected-snakebite-in-inabanga/"
+            },
+            "notify": false
+        },
+        {
+            "seq": 3,
+            "id": "mercury-creams",
+            "title": "FDA warns against three skin-lightening creams flagged for mercury",
+            "date": "2026-11-04",
+            "category": "products",
+            "trust": "official",
+            "alert": null,
+            "scope": "national",
+            "municipalities": [],
+            "summary": "FDA advisories warn consumers not to buy or use Biogold Papaya Whitening Beauty Cream with Honey, Biocos Beauty Cream 3-in-1 Pack and Arayna Papaya Glow Beauty Cream.",
+            "facts": [
+                "EcoWaste Coalition screening found mercury of about 13,310 to 16,930 ppm in the three products.",
+                "The products have no certificate of product notification, so selling them is illegal.",
+                "Children can be affected by mercury vapors and by sharing contaminated blankets, pillows and towels.",
+                "The advisories are national. The report names no Bohol sales or cases."
+            ],
+            "source": {
+                "name": "Bohol Island News",
+                "url": "https://boholislandnews.com/2026/11/04/ecowaste-coalition-praises-fda-warning-on-mercury-contaminated-skin-lighteners/"
+            },
+            "notify": false
+        },
+        {
+            "seq": 4,
+            "id": "tanocal-mission",
+            "title": "Free medical mission planned for Tagbilaran in February 2027",
+            "date": "2026-11-01",
+            "category": "services",
+            "trust": "news",
+            "alert": null,
+            "scope": "municipal",
+            "municipalities": [
+                "Tagbilaran City"
+            ],
+            "summary": "The Tagbilaran Association of Northern California plans a mission with US-based doctors and expects about 1,500 patients.",
+            "facts": [
+                "It will include dental care and free medicine, reading eyeglasses, and canes for seniors.",
+                "The venue is not final. Immaculate Heart of Mary Seminary in Taloto and Gallares Hospital are under consideration."
+            ],
+            "source": {
+                "name": "The Bohol Tribune",
+                "url": "https://theboholtribune.com/2026/11/01/local-news-109/"
+            },
+            "notify": false
+        },
+        {
+            "seq": 5,
+            "id": "code-white-kalagkalag",
+            "title": "Code White for health facilities over Kalagkalag has ended",
+            "date": "2026-10-28",
+            "category": "services",
+            "trust": "official",
+            "alert": "ended",
+            "scope": "region",
+            "municipalities": [],
+            "summary": "DOH-7 put Central Visayas health facilities on Code White for All Saints' and All Souls' Day. The Bohol Provincial Health Office said it would deploy personnel to strategic areas.",
+            "facts": [
+                "Government emergency rooms were told to stay ready for a possible patient surge.",
+                "DOH-7 advised avoiding unsafe water and questionable roadside food because of diarrhea risk."
+            ],
+            "source": {
+                "name": "SunStar Cebu",
+                "url": "https://www.sunstar.com.ph/cebu/doh-7-readies-medical-teams"
+            },
+            "notify": false,
+            "alertNote": "Ran 31 October to 3 November 2026."
+        },
+        {
+            "seq": 6,
+            "id": "haze-alert",
+            "title": "DOH-7 put Central Visayas hospitals on heightened alert over haze",
+            "date": "2026-09-04",
+            "category": "air",
+            "trust": "official",
+            "alert": "unknown",
+            "scope": "region",
+            "municipalities": [],
+            "summary": "Hospitals were told to prepare for a possible rise in respiratory illness. A draft circular was to be sent to the Bohol Provincial Health Office.",
+            "facts": [
+                "As of 3 September, officials had recorded no haze-linked respiratory illnesses.",
+                "Children under five, older adults and pregnant women were told to limit outdoor activities."
+            ],
+            "source": {
+                "name": "The Freeman",
+                "url": "https://www.philstar.com/the-freeman/cebu-news/2026/09/04/2553936/doh-7-braces-haze-related-illnesses-high-alert-central-visayas-"
+            },
+            "notify": false,
+            "alertNote": "We found no later update, so check whether this still applies."
+        },
+        {
+            "seq": 7,
+            "id": "prc-dengue-response",
+            "title": "Philippine Red Cross Bohol steps up dengue response",
+            "date": "2026-08-30",
+            "category": "dengue",
+            "trust": "news",
+            "alert": null,
+            "scope": "province",
+            "municipalities": [
+                "Balilihan",
+                "Candijay",
+                "Talibon",
+                "Tagbilaran City",
+                "Ubay",
+                "Getafe",
+                "Tubigon"
+            ],
+            "summary": "Volunteers are prioritizing Talibon, Tagbilaran City, Ubay, Getafe and Tubigon. Earlier drives ran in Balilihan and Candijay.",
+            "facts": [
+                "Initial activities reached at least 307 people.",
+                "19 Red Cross Youth school councils committed to awareness campaigns and clean-ups.",
+                "The chapter activated its blood donor network for a 7-month-old dengue patient, who was later discharged."
+            ],
+            "source": {
+                "name": "The Bohol Tribune",
+                "url": "https://theboholtribune.com/2026/08/30/prc-bohol-intensifies-dengue-response-as-province-records-1883-cases-21-deaths/"
+            },
+            "notify": false
+        },
+        {
+            "seq": 8,
+            "id": "dengue-outbreak",
+            "title": "Province-wide dengue outbreak declared in Bohol",
+            "date": "2026-08-28",
+            "category": "dengue",
+            "trust": "official",
+            "alert": "active",
+            "scope": "province",
+            "municipalities": [
+                "Talibon",
+                "Tagbilaran City",
+                "Ubay",
+                "Getafe",
+                "Tubigon"
+            ],
+            "summary": "Governor Aumentado issued the declaration by executive order after cases exceeded the epidemic threshold for three consecutive weeks.",
+            "facts": [
+                "1,883 cases and 21 deaths from 4 January to 22 August 2026. This is the latest Bohol count we could confirm.",
+                "Talibon, Tagbilaran City, Ubay, Getafe and Tubigon were named as areas with a significant number of cases.",
+                "City and municipal health offices and hospitals were ordered to set up Dengue Fast Lanes.",
+                "Households, schools and communities were told to join Search and Destroy activities, including the 4 o'clock habit."
+            ],
+            "source": {
+                "name": "Philippine Daily Inquirer",
+                "url": "https://newsinfo.inquirer.net/2294147/bohol-declares-province-wide-dengue-outbreak"
+            },
+            "notify": false,
+            "alertNote": "Declared 27 August 2026. We found no report that it has ended.",
+            "highlightNote": "named among the areas with a significant number of cases"
+        },
+        {
+            "seq": 9,
+            "id": "ligtas-tigdas",
+            "title": "Measles-rubella vaccination drive for Bohol and Cebu children has ended",
+            "date": "2026-08-12",
+            "category": "vaccination",
+            "trust": "official",
+            "alert": "ended",
+            "scope": "province",
+            "municipalities": [],
+            "summary": "Ligtas Tigdas 2026 targeted at least 630,000 children aged 6 to 59 months across Cebu and Bohol.",
+            "facts": [
+                "Rural health units took part, and barangay health workers helped register eligible children.",
+                "The report gives no Bohol-specific sites or schedules."
+            ],
+            "source": {
+                "name": "The Manila Times",
+                "url": "https://www.manilatimes.net/2026/08/12/regions/cebu-bohol-launch-mass-immunization-program/2403166"
+            },
+            "notify": false,
+            "alertNote": "Ran 10 to 28 August 2026."
+        },
+        {
+            "seq": 10,
+            "id": "hiv-hotspots",
+            "title": "Report names the Bohol areas with the most new HIV cases",
+            "date": "2026-05-31",
+            "category": "hiv",
+            "trust": "news",
+            "alert": null,
+            "scope": "province",
+            "municipalities": [
+                "Tagbilaran City",
+                "Panglao",
+                "Ubay",
+                "Tubigon",
+                "Talibon"
+            ],
+            "summary": "Tagbilaran City, Panglao, Ubay, Tubigon and Talibon had the most new cases in Bohol from January to March 2025, the report says.",
+            "facts": [
+                "Bohol recorded 17 new cases from January to March 2025.",
+                "Tagbilaran City and Panglao have the HIV treatment centers offering antiretroviral therapy.",
+                "A health worker quoted in the report said HIV is manageable with proper medication."
+            ],
+            "source": {
+                "name": "The Bohol Tribune",
+                "url": "https://theboholtribune.com/2026/05/31/bohol-remains-among-phs-top-hiv-hotspots/"
+            },
+            "notify": false
+        },
+        {
+            "seq": 11,
+            "id": "flu-alert-jan",
+            "title": "DOH Bohol urged masks, handwashing and flu shots",
+            "date": "2026-01-12",
+            "category": "respiratory",
+            "trust": "official",
+            "alert": null,
+            "scope": "province",
+            "municipalities": [],
+            "summary": "DOH Bohol head Dr. Van Phillip Baton said flu and other respiratory infections remain among the province's top diseases to watch.",
+            "facts": [
+                "Children, older adults, immunocompromised people and pregnant women are the groups named as vulnerable.",
+                "People at risk of complications should see a healthcare professional right away."
+            ],
+            "source": {
+                "name": "PIA Bohol",
+                "url": "https://piaboholenglishnews.blogspot.com/2026/01/flu-alert-up-disinfect-get-vax-shots.html"
+            },
+            "notify": false
+        },
+        {
+            "seq": 12,
+            "id": "lepto-2025",
+            "title": "Leptospirosis cases rose sharply in Bohol after 2025 flooding",
+            "date": "2025-12-02",
+            "category": "leptospirosis",
+            "trust": "official",
+            "alert": null,
+            "scope": "province",
+            "municipalities": [],
+            "summary": "Bohol logged 80 cases and five confirmed deaths from January to 22 November 2025, up 142.4% from the same period a year earlier.",
+            "facts": [
+                "Provincial Health Officer Dr. Em-em Uy urged immediate consultation when symptoms appear.",
+                "Symptoms listed: fever, rashes, body pain, stomachache, vomiting and diarrhea."
+            ],
+            "source": {
+                "name": "Bohol Island News",
+                "url": "https://boholislandnews.com/2025/12/02/leptospirosis-cases-surge-in-bohol-following-widespread-flooding/"
+            },
+            "notify": false
+        },
+        {
+            "seq": 13,
+            "id": "purokalusugan",
+            "title": "Tagbilaran's PuroKalusugan brings free checkups to the purok",
+            "date": "2025-07-28",
+            "category": "services",
+            "trust": "official",
+            "alert": null,
+            "scope": "municipal",
+            "municipalities": [
+                "Tagbilaran City"
+            ],
+            "summary": "The city's community health program offers free consultations and medicines, blood sugar tests, infant vaccination and PhilHealth enrollment.",
+            "facts": [
+                "It started on 23 July 2025 at Purok 3, Barangay Dampas.",
+                "The report says it is expanding to other barangays but does not name them."
+            ],
+            "source": {
+                "name": "The Bohol Times",
+                "url": "https://theboholtimes.com/?p=15899"
+            },
+            "notify": false
+        }
+    ]
+}

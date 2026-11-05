@@ -83,6 +83,13 @@ public class MainActivity extends Activity {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        // Show the latest news whenever the app comes back to the screen.
+        web.evaluateJavascript("window.bhwRefresh&&window.bhwRefresh()", null);
+    }
+
+    @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         web.saveState(outState);
@@ -107,8 +114,13 @@ public class MainActivity extends Activity {
         }
 
         @JavascriptInterface
-        public String getApiBase() {
-            return BuildConfig.API_BASE;
+        public String getFeedUrl() {
+            return BuildConfig.FEED_URL;
+        }
+
+        @JavascriptInterface
+        public int getVersionCode() {
+            return BuildConfig.VERSION_CODE;
         }
 
         @JavascriptInterface

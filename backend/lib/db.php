@@ -60,7 +60,7 @@ function bhw_install(PDO $db): void
     )$tail");
     $db->exec("CREATE TABLE IF NOT EXISTS meta (
         k VARCHAR(40) NOT NULL PRIMARY KEY,
-        v VARCHAR(200) NOT NULL
+        v TEXT NOT NULL
     )$tail");
 }
 

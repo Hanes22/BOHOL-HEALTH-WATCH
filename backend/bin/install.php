@@ -28,6 +28,9 @@ foreach ($seed['items'] as $i) {
     ]);
     $added++;
 }
+if (bhw_meta_get($db, 'metrics') === null && isset($seed['metrics'])) {
+    bhw_meta_set($db, 'metrics', json_encode($seed['metrics'], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+}
 if (bhw_meta_get($db, 'last_collect') === null) {
     bhw_meta_set($db, 'last_collect', $seed['generated']);
 }

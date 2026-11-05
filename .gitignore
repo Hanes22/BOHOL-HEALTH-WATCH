@@ -1,0 +1,10 @@
+backend/config.php
+backend/data/*.sqlite
+collect.log
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
+build-output/
+BoholHealthWatch.apk
+.buildtools/

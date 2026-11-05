@@ -33,9 +33,10 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeUnit;
 
-/** Checks the backend about every 15 minutes, even with the app closed, and posts notifications. */
+/** Checks the live feed about every 15 minutes, even with the app closed, and posts notifications. */
 public class AlertWorker extends Worker {
     static final String KEY_PREFS = "prefs_json";
+    private static final int MAX_PER_CHECK = 5;
     private static final String KEY_LAST_SEQ = "last_seq";
     private static final String CHANNEL = "health_alerts";
     private static final String WORK_NAME = "bhw_alert_check";
@@ -49,7 +50,7 @@ public class AlertWorker extends Worker {
     }
 
     static void schedule(Context context) {
-        if (BuildConfig.API_BASE.isEmpty()) {
+        if (BuildConfig.FEED_URL.isEmpty()) {
             return;
         }
         PeriodicWorkRequest request = new PeriodicWorkRequest.Builder(AlertWorker.class, 15, TimeUnit.MINUTES)
@@ -64,17 +65,19 @@ public class AlertWorker extends Worker {
         SharedPreferences store = prefs(getApplicationContext());
         long last = store.getLong(KEY_LAST_SEQ, -1);
         try {
-            JSONObject feed = fetch(BuildConfig.API_BASE.replaceAll("/+$", "")
-                    + "/feed.php?limit=50&since_seq=" + Math.max(last, 0));
+            String url = BuildConfig.FEED_URL;
+            JSONObject feed = fetch(url + (url.contains("?") ? "&" : "?") + "t=" + System.currentTimeMillis());
             long max = feed.optLong("max_seq", Math.max(last, 0));
             // The first run only records a starting point, so a new install isn't flooded with old reports.
             if (last >= 0) {
                 JSONObject user = new JSONObject(store.getString(KEY_PREFS, "{}"));
                 JSONArray items = feed.getJSONArray("items");
-                for (int i = 0; i < items.length(); i++) {
+                int posted = 0;
+                for (int i = 0; i < items.length() && posted < MAX_PER_CHECK; i++) {
                     JSONObject item = items.getJSONObject(i);
-                    if (shouldNotify(item, user)) {
+                    if (item.optLong("seq", 0) > last && shouldNotify(item, user)) {
                         post(item);
+                        posted++;
                     }
                 }
             }
@@ -85,7 +88,7 @@ public class AlertWorker extends Worker {
         }
     }
 
-    /** Mirrors the Profile tab: town, province-wide and topic choices. Only reports an admin flagged are sent. */
+    /** Mirrors the Profile tab: town, province-wide and topic choices. Only reports flagged notify are sent. */
     static boolean shouldNotify(JSONObject item, JSONObject user) {
         if (!item.optBoolean("notify", false)) {
             return false;

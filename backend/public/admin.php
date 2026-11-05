@@ -49,7 +49,7 @@ function page(string $body): void
     '<title>Bohol Health Watch admin</title><style>body{font:16px/1.45 system-ui,sans-serif;margin:0 auto;max-width:640px;padding:16px;color:#0d2238}',
     'h1,h2{line-height:1.15}label{display:block;font-weight:600;margin-top:10px}input,select,textarea{width:100%;box-sizing:border-box;font:inherit;padding:10px;border:1px solid #9db8d4;border-radius:6px}',
     'input[type=checkbox]{width:auto}button{font:inherit;font-weight:700;min-height:44px;padding:0 16px;border:0;border-radius:6px;background:#0a56b0;color:#fff;margin:12px 8px 0 0}',
-    'button.alt{background:#e9eef3;color:#0d2238}article{border-top:1px solid #d5e0ec;padding:14px 0}.err{color:#b3261e;font-weight:700}.ok{color:#17694a;font-weight:700}small{color:#50657b}</style>',
+    'button.alt{background:#e9eef3;color:#0d2238}article{border-top:1px solid #d5e0ec;padding:14px 0}.err{color:#b3261e;font-weight:700}.ok{color:#17694a;font-weight:700}small{color:#50657b}.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;font-size:14px;color:#50657b;border-block:1px solid #d5e0ec;padding:12px 0}.tiles b{display:block;font-size:22px;line-height:1.2;color:#0d2238}</style>',
     $body, '</html>';
 }
 function fields(array $r): string
@@ -118,6 +118,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ->execute([...$values, $pubSeq, $seq]);
         }
         $msg = 'Published.';
+    } elseif ($action === 'metrics') {
+        $m = json_decode((string) ($_POST['metrics'] ?? ''), true);
+        $src = $m['dengue']['source']['url'] ?? '';
+        $natSrc = $m['national']['source']['url'] ?? '';
+        $valid = is_array($m) && is_int($m['dengue']['cases'] ?? null) && is_int($m['dengue']['deaths'] ?? null)
+            && preg_match('/^\d{4}-\d{2}-\d{2}$/', (string) ($m['dengue']['from'] ?? '')) && preg_match('/^\d{4}-\d{2}-\d{2}$/', (string) ($m['dengue']['to'] ?? ''))
+            && is_string($src) && bhw_is_http_url($src) && is_string($natSrc) && bhw_is_http_url($natSrc) && is_array($m['national']['rows'] ?? null);
+        if ($valid) {
+            bhw_meta_set($db, 'metrics', json_encode($m, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+            $msg = 'Dashboard figures saved.';
+        } else {
+            $msg = 'Those figures were not saved. Check the JSON, the dates (YYYY-MM-DD), the whole-number counts and both source URLs.';
+        }
     } elseif ($action === 'reject') {
         $db->prepare("UPDATE reports SET state='rejected', notify=0 WHERE seq=?")->execute([$seq]);
         $msg = 'Rejected. It will not appear in the app.';
@@ -147,7 +160,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $pending = $db->query("SELECT * FROM reports WHERE state='pending' ORDER BY pub_date DESC, seq DESC")->fetchAll();
 $recent = $db->query("SELECT * FROM reports WHERE state='published' ORDER BY pub_date DESC, seq DESC LIMIT 30")->fetchAll();
 $token = '<input type="hidden" name="csrf" value="' . h(csrf()) . '">';
+$published = (int) $db->query("SELECT COUNT(*) FROM reports WHERE state='published'")->fetchColumn();
 $out = '<h1>Bohol Health Watch admin</h1>' . ($msg ? '<p class="ok">' . h($msg) . '</p>' : '');
+$out .= '<div class="tiles"><div><b>' . count($pending) . '</b>Waiting for review</div><div><b>' . $published . '</b>Published</div><div><b>' . h(bhw_meta_get($db, 'last_collect') ?? 'Never') . '</b>Last collected</div></div>';
 $out .= '<h2>Waiting for review (' . count($pending) . ')</h2><p><small>Serious reports stay hidden until you publish them. Check the source first. Mark a report Official only if a government body made the statement.</small></p>';
 foreach ($pending as $r) {
     $out .= '<article><form method="post">' . $token . '<input type="hidden" name="seq" value="' . (int) $r['seq'] . '">'
@@ -161,6 +176,9 @@ $out .= '<h2>Add a report by hand</h2><p><small>Use this for posts on official F
     . fields([]) . '<label>Date<input type="date" name="pub_date" required value="' . date('Y-m-d') . '"></label>'
     . '<label>Source name<input name="source_name" required maxlength="120"></label><label>Source URL<input type="url" name="source_url" required></label>'
     . '<button name="action" value="add">Add and publish</button></form>';
+$metricsJson = json_encode(json_decode((string) bhw_meta_get($db, 'metrics'), true), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+$out .= '<h2>Dashboard figures</h2><p><small>Update these only from a report you have read. The app shows the dates and source next to the numbers.</small></p><form method="post">' . $token
+    . '<label>Figures (JSON)<textarea name="metrics" rows="14" style="font-family:monospace;font-size:13px">' . h($metricsJson) . '</textarea></label><button name="action" value="metrics">Save figures</button></form>';
 $out .= '<h2>Published</h2>';
 foreach ($recent as $r) {
     $out .= '<article><details><summary>' . h($r['pub_date']) . ' · ' . h($r['title']) . '</summary><form method="post">' . $token

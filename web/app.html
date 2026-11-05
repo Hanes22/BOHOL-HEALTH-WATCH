@@ -3,12 +3,12 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Barlow+Semi+Condensed:wght@500;600;700&display=swap">
 <style>
-/* Layout: a one-column public bulletin. A solid blue town masthead, then ruled lists instead of cards, with status shown as stamps. */
+/* Layout: a town health dashboard. Blue status masthead, ruled panels of dated figures and charts, then the report list. Two columns on tablets. */
 :root{
   --bg:#ffffff;--surface:#f1f6fc;--ink:#0d2238;--muted:#50657b;--line:#d5e0ec;
   --blue:#0a56b0;--blue-ink:#ffffff;--blue-soft:#dcebfb;--link:#0a56b0;
   --sea:#e2eefa;--land:#ffffff;--land-line:#9db8d4;
-  --red:#b3261e;--red-soft:#fbe7e5;--amber:#8a5a00;--amber-soft:#fbf0d5;--grey:#5a6b7c;--grey-soft:#e9eef3;--green:#17694a;--green-soft:#dff3ea;
+  --red:#b3261e;--red-soft:#fbe7e5;--amber:#8a5a00;--amber-soft:#fbf0d5;--grey:#5a6b7c;--grey-soft:#e9eef3;--green:#17694a;--green-soft:#dff3ea;--bar:#0a56b0;--bar-prev:#7396c4;
   --display:"Barlow Semi Condensed","Arial Narrow",Arial,sans-serif;
   --body:"Atkinson Hyperlegible",Verdana,"Segoe UI",Roboto,sans-serif;
 }
@@ -16,13 +16,13 @@
   --bg:#0c1825;--surface:#14263a;--ink:#e8f0f8;--muted:#a3b6c9;--line:#27405a;
   --blue:#0f4a93;--blue-ink:#ffffff;--blue-soft:#17365a;--link:#8cc2ff;
   --sea:#102235;--land:#1d3650;--land-line:#4a6c8e;
-  --red:#ffb4ab;--red-soft:#4a1d1a;--amber:#f2c76e;--amber-soft:#3e2f0d;--grey:#b4c3d1;--grey-soft:#253645;--green:#86dcb7;--green-soft:#123a2b;
+  --red:#ffb4ab;--red-soft:#4a1d1a;--amber:#f2c76e;--amber-soft:#3e2f0d;--grey:#b4c3d1;--grey-soft:#253645;--green:#86dcb7;--green-soft:#123a2b;--bar:#8cc2ff;--bar-prev:#5f86b3;
   color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#0c1825;--surface:#14263a;--ink:#e8f0f8;--muted:#a3b6c9;--line:#27405a;
   --blue:#0f4a93;--blue-ink:#ffffff;--blue-soft:#17365a;--link:#8cc2ff;
   --sea:#102235;--land:#1d3650;--land-line:#4a6c8e;
-  --red:#ffb4ab;--red-soft:#4a1d1a;--amber:#f2c76e;--amber-soft:#3e2f0d;--grey:#b4c3d1;--grey-soft:#253645;--green:#86dcb7;--green-soft:#123a2b;
+  --red:#ffb4ab;--red-soft:#4a1d1a;--amber:#f2c76e;--amber-soft:#3e2f0d;--grey:#b4c3d1;--grey-soft:#253645;--green:#86dcb7;--green-soft:#123a2b;--bar:#8cc2ff;--bar-prev:#5f86b3;
   color-scheme:dark}
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
@@ -42,11 +42,64 @@ button{cursor:pointer}
 .brief{margin:8px 0 0;font-size:16px}
 .brief strong{font-weight:700}
 .brief-link{appearance:none;display:inline-flex;align-items:center;min-height:44px;margin-top:6px;padding:0 14px;background:var(--bg);color:var(--ink);border:0;border-radius:6px;font-weight:700}
+.hero-alert{margin-top:10px}
+.hero-alert .stamp{background:#fff;color:#b3261e}
+.hero-alert h2{font-size:24px;line-height:1.12;font-weight:700;margin-top:8px}
+.hero-alert p{margin:6px 0 0;font-size:15px}
+.counts{appearance:none;display:grid;grid-template-columns:repeat(4,1fr);width:100%;margin-top:14px;padding:0;background:none;border:0;border-top:1px solid rgba(255,255,255,.35);color:inherit;text-align:left}
+.counts span{display:block;padding-top:10px;font-size:13px;line-height:1.2}
+.counts b{display:block;font:700 28px/1 var(--display);font-variant-numeric:tabular-nums;margin-bottom:2px}
+.panel{padding-block:20px;border-bottom:1px solid var(--line)}
+.panel-head{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:2px 12px;margin-bottom:12px}
+.panel-head h2,.latest-head h2{font-size:24px;line-height:1.1;font-weight:700}
+.panel-sub{font-size:13px;color:var(--muted)}
+.figures{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.figure b{display:block;font:700 54px/1 var(--display);font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.figure span{color:var(--muted);font-size:15px}
+.asof{margin:12px 0 0;font-size:14px;color:var(--muted)}
+.mini{font:600 16px/1.2 var(--display);margin:16px 0 8px}
+.townchips{display:flex;flex-wrap:wrap;gap:8px}
+.townchip{appearance:none;min-height:40px;padding:0 12px;border:1px solid var(--line);border-radius:6px;background:var(--bg);font-size:15px}
+.townchip.mine{background:var(--blue);border-color:var(--blue);color:var(--blue-ink);font-weight:700}
+.care{appearance:none;display:block;width:100%;text-align:left;margin-block:16px;padding:12px 14px;background:var(--red-soft);color:var(--ink);border:0;border-radius:6px}
+.care strong,.care span{display:block}
+.care span{color:var(--red);font-weight:700;margin-top:2px}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:13px;color:var(--muted);margin-bottom:10px}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.key{display:inline-block;width:12px;height:12px;border-radius:3px}
+.k-prev{background:var(--bar-prev)}
+.k-cur{background:var(--bar)}
+.trend{padding-block:10px}
+.trend-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:5px}
+.delta{font-size:14px;font-weight:700;white-space:nowrap}
+.d-up{color:var(--red)}
+.d-down{color:var(--green)}
+.pair{display:flex;align-items:center;gap:8px;margin-top:2px}
+.pbar{display:block;height:14px;border-radius:0 4px 4px 0}
+.pval{font-size:14px;font-variant-numeric:tabular-nums;color:var(--ink)}
+.topic{appearance:none;display:grid;grid-template-columns:minmax(0,9.5em) minmax(0,1fr) 2ch;align-items:center;gap:10px;width:100%;min-height:42px;padding:0;background:none;border:0;text-align:left;font-size:15px}
+.topic[aria-pressed="true"] .topic-name{font-weight:700;color:var(--link)}
+.topic-track{display:block}
+.topic-bar{display:block;height:14px;background:var(--bar);border-radius:0 4px 4px 0}
+.topic-val{text-align:right;font-variant-numeric:tabular-nums;font-weight:700}
+.latest{padding-top:20px}
+.latest-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:6px 12px}
+.clear,.more{appearance:none;min-height:44px;background:none;border:0;padding:0;color:var(--link);font-weight:700}
+.more{width:100%;margin-block:8px;border:1px solid var(--line);border-radius:6px}
+.latest .search{margin-top:10px}
+.latest .list{margin-top:6px}
+@media (min-width:900px){
+  #app.wide{max-width:1080px}
+  .dash{display:grid;grid-template-columns:1fr 1fr;gap:0 24px;align-items:start}
+}
 .page-head{padding-block:18px 8px}
 .page-head h1{font-size:30px;line-height:1.1;font-weight:700}
 .page-head p{margin:4px 0 0;color:var(--muted)}
 .freshness{display:flex;gap:8px;align-items:flex-start;padding-block:10px;background:var(--surface);color:var(--muted);font-size:14px;border-bottom:1px solid var(--line)}
 .freshness.stale{background:var(--amber-soft);color:var(--amber)}
+.freshness{justify-content:space-between;align-items:center}
+.refresh{appearance:none;flex:none;min-height:36px;padding:0 10px;background:none;border:1px solid var(--line);border-radius:6px;color:var(--link);font-weight:700;font-size:14px}
+.update{display:block;padding-block:12px;background:var(--amber-soft);color:var(--ink);font-weight:700}
 .section-title{font:700 14px/1 var(--display);letter-spacing:.07em;text-transform:uppercase;color:var(--muted);padding-block:20px 8px}
 .chips{display:flex;gap:8px;overflow-x:auto;padding-block:12px 4px;scrollbar-width:none}
 .chips::-webkit-scrollbar{display:none}
@@ -152,8 +205,11 @@ var TABS=[["home","Home"],["alerts","Alerts"],["map","Map"],["tips","Health Tips
 var data=JSON.parse(document.getElementById("seed").textContent);
 var live=false;
 var native_=window.BHWNative||null;
-var API=(native_&&native_.getApiBase&&native_.getApiBase())||window.BHW_API||"";
-var S={tab:"home",cat:"all",q:"",mapTown:null,prefs:{town:"",local:true,province:true,cats:Object.keys(CATS)}};
+var FEED=(native_&&native_.getFeedUrl&&native_.getFeedUrl())||window.BHW_FEED_URL||(window.BHW_API?window.BHW_API.replace(/\/$/,"")+"/feed.php?limit=100":"");
+var RELEASE_API="https://api.github.com/repos/Hanes22/BOHOL-HEALTH-WATCH/releases/latest";
+var APK_URL="https://github.com/Hanes22/BOHOL-HEALTH-WATCH/releases/latest/download/BoholHealthWatch.apk";
+var fetchedAt=0,feedFailed=false,refreshing=false,lastJson="",newVersion=false;
+var S={tab:"home",cat:"all",q:"",showAll:false,mapTown:null,prefs:{town:"",local:true,province:true,cats:Object.keys(CATS)}};
 
 function loadPrefs(){try{var p=JSON.parse(localStorage.getItem("bhw.prefs")||"null");if(p&&typeof p==="object"){for(var k in S.prefs)if(k in p)S.prefs[k]=p[k]}}catch(e){}
   if(S.prefs.town&&!TOWNS[S.prefs.town])S.prefs.town="";}
@@ -171,22 +227,43 @@ function scopeText(it){if(it.scope==="municipal")return (it.municipalities||[]).
 function stamps(it){var h="";if(it.alert)h+='<span class="stamp s-'+esc(it.alert)+'">'+esc(ALERT[it.alert]||it.alert)+'</span>';h+='<span class="stamp s-'+(it.trust==="official"?"official":"news")+'">'+(it.trust==="official"?"Official":"News report")+'</span>';return h}
 function row(it){var town=S.prefs.town;return '<li><button class="row gutter" data-open="'+esc(it.id)+'"><div class="meta">'+stamps(it)+'<span>'+esc(fmt(it.date))+'</span><span>'+esc(scopeText(it))+'</span></div><h3>'+esc(it.title)+'</h3><p>'+esc(it.summary)+'</p>'+(named(it,town)?'<div class="here">Names '+esc(town)+'</div>':'')+'</button></li>'}
 function freshness(){var gen=data.generated;var age=Math.floor((Date.now()-day(gen).getTime())/864e5);var stale=age>3;
-  var msg=live?"Live feed. Last updated "+fmt(gen)+".":"Reports checked up to "+fmt(gen)+". This copy does not update by itself.";
-  if(stale)msg="These reports are "+age+" days old. Check the sources for newer information.";
-  return '<div class="freshness gutter'+(stale?' stale':'')+'" role="status">'+esc(msg)+'</div>'}
+  var msg;
+  if(!FEED)msg="Reports checked up to "+fmt(gen)+". This copy does not update by itself.";
+  else if(feedFailed)msg=(live?"No connection. Showing news saved "+clock(fetchedAt)+".":"No connection. Showing reports from "+fmt(gen)+".");
+  else if(live)msg="Live news. Checked "+clock(fetchedAt)+".";
+  else msg="Checking for the latest news...";
+  if(stale&&(!FEED||live))msg="The newest update is "+age+" days old. Check the sources for newer information.";
+  return (newVersion?'<a class="update gutter" href="'+esc(APK_URL)+'" target="_blank" rel="noopener">A new app version is ready. Tap to download it.</a>':'')+'<div class="freshness gutter'+(stale?' stale':'')+'" role="status"><span>'+esc(msg)+'</span>'+(FEED?'<button class="refresh" data-refresh>'+(refreshing?'Checking...':'Refresh')+'</button>':'')+'</div>'}
+function clock(ms){if(!ms)return "earlier";var d=new Date(ms),now=new Date();var t=d.toLocaleTimeString("en-PH",{hour:"numeric",minute:"2-digit"});return d.toDateString()===now.toDateString()?"at "+t:"on "+d.toLocaleDateString("en-GB",{day:"numeric",month:"short"})+" at "+t}
 function cats(list){var seen={};list.forEach(function(i){seen[i.category]=1});return ["all"].concat(Object.keys(CATS).filter(function(c){return seen[c]}))}
 function chips(list){if(S.cat!=="all"&&!list.some(function(i){return i.category===S.cat}))S.cat="all";return '<div class="chips gutter" role="group" aria-label="Filter by topic">'+cats(list).map(function(c){return '<button class="chip" data-cat="'+c+'" aria-pressed="'+(S.cat===c)+'">'+esc(c==="all"?"All topics":CATS[c])+'</button>'}).join("")+'</div>'}
 
-function vHome(){var town=S.prefs.town;var list=inTown(town);var top=items().filter(function(i){return i.alert==="active"&&appliesTo(i,town)})[0];
-  var brief="";
-  if(top){brief='<p class="brief"><strong>'+esc(top.title)+'.</strong> '+esc(top.alertNote||"")+(named(top,town)?' '+esc(town)+' is '+esc(top.highlightNote||"named in this report")+'.':'')+'</p><button class="brief-link" data-open="'+esc(top.id)+'">Read this alert</button>'}
-  else brief='<p class="brief">No active alert in this copy of the reports.</p>';
-  var q=S.q.trim().toLowerCase();
-  var pool=q?items():list;
+function num(n){return Number(n).toLocaleString("en-US")}
+function panelDengue(town){var m=(data.metrics||{}).dengue;if(!m)return "";var age=Math.floor((Date.now()-day(m.to).getTime())/864e5);
+  return '<section class="panel gutter"><div class="panel-head"><h2>Dengue in Bohol</h2><span class="panel-sub">Province-wide total</span></div><div class="figures"><div class="figure"><b>'+esc(num(m.cases))+'</b><span>cases</span></div><div class="figure"><b>'+esc(num(m.deaths))+'</b><span>deaths</span></div></div>'+
+  '<p class="asof">'+esc(fmt(m.from))+' to '+esc(fmt(m.to))+'. Latest count we could confirm, now '+age+' days old. <a href="'+esc(safeUrl(m.source.url))+'" target="_blank" rel="noopener">'+esc(m.source.name)+'</a></p>'+
+  '<h3 class="mini">Areas named with a significant number of cases</h3><div class="townchips">'+(m.towns||[]).map(function(t){return '<button class="townchip'+(t===town?' mine':'')+'" data-maptown="'+esc(t)+'">'+esc(t)+(t===town?' (your town)':'')+'</button>'}).join("")+'</div></section>'}
+function panelNational(){var m=(data.metrics||{}).national;if(!m)return "";
+  function bar(cls,val,max,label){var w=Math.max(2,Math.round(val/max*74));return '<div class="pair" title="'+esc(label)+': '+esc(num(val))+' cases"><span class="pbar '+cls+'" style="width:'+w+'%"></span><span class="pval">'+esc(num(val))+'</span></div>'}
+  return '<section class="panel gutter"><div class="panel-head"><h2>Philippines, two-week trend</h2><span class="panel-sub">Nationwide cases</span></div><div class="legend"><span><i class="key k-prev"></i>'+esc(m.prevLabel)+'</span><span><i class="key k-cur"></i>'+esc(m.curLabel)+'</span></div>'+
+  m.rows.map(function(r){var pct=r.prev?Math.round((r.cur-r.prev)/r.prev*100):0;var up=pct>0;var max=Math.max(r.prev,r.cur)||1;
+    return '<div class="trend"><div class="trend-head"><strong>'+esc(r.name)+'</strong><span class="delta '+(up?'d-up':'d-down')+'">'+(up?'&#9650; up ':'&#9660; down ')+Math.abs(pct)+'%</span></div>'+bar('k-prev',r.prev,max,m.prevLabel)+bar('k-cur',r.cur,max,m.curLabel)+'</div>'}).join("")+
+  '<p class="asof">Each illness is drawn on its own scale. These figures are not specific to Bohol. <a href="'+esc(safeUrl(m.source.url))+'" target="_blank" rel="noopener">'+esc(m.source.name)+'</a></p></section>'}
+function panelTopics(list){var counts={};list.forEach(function(i){counts[i.category]=(counts[i.category]||0)+1});var keys=Object.keys(CATS).filter(function(c){return counts[c]}).sort(function(a,b){return counts[b]-counts[a]});var max=keys.length?counts[keys[0]]:1;
+  return '<section class="panel gutter"><div class="panel-head"><h2>Reports by topic</h2><span class="panel-sub">'+list.length+' reports. Tap to filter</span></div>'+
+  keys.map(function(c){return '<button class="topic" data-cat="'+c+'" aria-pressed="'+(S.cat===c)+'" title="'+esc(CATS[c])+': '+counts[c]+' reports"><span class="topic-name">'+esc(CATS[c])+'</span><span class="topic-track"><span class="topic-bar" style="width:'+Math.max(6,Math.round(counts[c]/max*100))+'%"></span></span><span class="topic-val">'+counts[c]+'</span></button>'}).join("")+'</section>'}
+function vHome(){var town=S.prefs.town;var list=inTown(town);var alerts=list.filter(function(i){return i.alert});var top=items().filter(function(i){return i.alert==="active"&&appliesTo(i,town)})[0];
+  function cnt(a){return alerts.filter(function(i){return i.alert===a}).length}
+  var brief=top?'<div class="hero-alert"><span class="stamp s-active">Active alert</span><h2>'+esc(top.title)+'</h2><p>'+esc(top.alertNote||"")+(named(top,town)?' '+esc(town)+' is '+esc(top.highlightNote||"named in this report")+'.':'')+'</p><button class="brief-link" data-open="'+esc(top.id)+'">Read this alert</button></div>':'<p class="brief">No active alert in this copy of the reports.</p>';
+  var q=S.q.trim().toLowerCase();var pool=q?items():list;
   var shown=pool.filter(function(i){return (S.cat==="all"||i.category===S.cat)&&(!q||(i.title+" "+i.summary+" "+(i.municipalities||[]).join(" ")).toLowerCase().indexOf(q)>=0)});
-  return '<header class="masthead gutter"><div class="brand">Bohol Health Watch</div><button class="town-btn" data-town aria-label="Change town"><b>'+esc(town||"All Bohol")+'</b><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>'+brief+'</header>'+freshness()+
-  '<div class="gutter"><label for="q" hidden>Search reports</label><input id="q" class="search" type="search" placeholder="Search reports" value="'+esc(S.q)+'"></div>'+chips(list)+
-  '<div id="feed"><ul class="list">'+shown.map(row).join("")+'</ul>'+(shown.length?"":'<p class="empty gutter">No reports match. Try another topic or word.</p>')+'</div>'}
+  var limited=!q&&S.cat==="all"&&!S.showAll&&shown.length>5;var visible=limited?shown.slice(0,5):shown;
+  var heading=S.cat==="all"?"Latest reports":CATS[S.cat]+" reports";
+  return '<header class="masthead gutter"><div class="brand">Bohol Health Watch</div><button class="town-btn" data-town aria-label="Change town"><b>'+esc(town||"All Bohol")+'</b><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>'+brief+
+  '<button class="counts" data-tab="alerts" aria-label="Open alerts"><span><b>'+cnt("active")+'</b>Active</span><span><b>'+cnt("watch")+'</b>Watch</span><span><b>'+cnt("unknown")+'</b>Check status</span><span><b>'+cnt("ended")+'</b>Ended</span></button></header>'+freshness()+
+  '<div class="dash"><div class="dash-col">'+panelDengue(town)+'<div class="gutter"><button class="care" data-tab="tips"><strong>Have a fever?</strong><span>See the dengue warning signs &rsaquo;</span></button></div>'+panelNational()+'</div><div class="dash-col">'+panelTopics(list)+
+  '<section class="latest" id="latest"><div class="latest-head gutter"><h2>'+esc(heading)+'</h2>'+(S.cat!=="all"?'<button class="clear" data-cat="all">Show all topics</button>':'')+'</div><div class="gutter"><label for="q" hidden>Search reports</label><input id="q" class="search" type="search" placeholder="Search all Bohol reports" value="'+esc(S.q)+'"></div>'+
+  '<div id="feed"><ul class="list">'+visible.map(row).join("")+'</ul>'+(shown.length?"":'<p class="empty gutter">No reports match. Try another topic or word.</p>')+(limited?'<div class="gutter"><button class="more" data-more>Show all '+shown.length+' reports</button></div>':'')+'</div></section></div></div>'}
 function vAlerts(){var town=S.prefs.town;var all=inTown(town).filter(function(i){return i.alert});var cur=all.filter(function(i){return i.alert==="active"||i.alert==="watch"||i.alert==="unknown"});var old=all.filter(function(i){return i.alert==="ended"});
   function alertRow(it){return '<li><button class="row gutter" data-open="'+esc(it.id)+'"><div class="meta">'+stamps(it)+'<span>'+esc(fmt(it.date))+'</span><span>'+esc(scopeText(it))+'</span></div><h3>'+esc(it.title)+'</h3><p>'+esc(it.alertNote||it.summary)+'</p></button></li>'}
   return '<div class="page-head gutter"><h1>Alerts</h1><p>For '+esc(town||"all of Bohol")+', including province-wide and regional alerts.</p></div>'+freshness()+
@@ -220,7 +297,7 @@ function vProfile(){var p=S.prefs;var opts='<option value="">All Bohol</option>'
   '<h2 class="section-title" style="padding-left:0">About these reports</h2><p><strong>Official</strong> means a government health body or LGU made the statement. <strong>News report</strong> means a news outlet reported it and we have not confirmed it with an official source. Every report links to its source.</p><p>This app is not run by the DOH or the Provincial Government of Bohol. It does not replace medical advice.</p></div>'+contact()}
 function renderNav(){var cur=inTown(S.prefs.town).filter(function(i){return i.alert==="active"||i.alert==="watch"}).length;
   document.getElementById("nav").innerHTML=TABS.map(function(t){return '<button data-tab="'+t[0]+'"'+(S.tab===t[0]?' aria-current="page"':'')+'><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true">'+ICONS[t[0]]+'</svg>'+t[1]+(t[0]==="alerts"&&cur?'<span class="badge" aria-label="'+cur+' current">'+cur+'</span>':'')+'</button>'}).join("")}
-function render(){document.getElementById("app").innerHTML={home:vHome,alerts:vAlerts,map:vMap,tips:vTips,profile:vProfile}[S.tab]();renderNav()}
+function render(){document.getElementById("app").className=S.tab==="home"?"wide":"";document.getElementById("app").innerHTML={home:vHome,alerts:vAlerts,map:vMap,tips:vTips,profile:vProfile}[S.tab]();renderNav()}
 function openDetail(id){var it=data.items.filter(function(i){return String(i.id)===id})[0];var el=document.getElementById("detail");if(!it){el.hidden=true;return}
   var noteCls=it.alert==="active"?"s-active":it.alert==="ended"?"s-ended":"s-watch";
   el.innerHTML='<div class="detail-in gutter"><button class="back" data-back>&lsaquo; Back</button><div class="meta">'+stamps(it)+'<span>'+esc(CATS[it.category]||it.category)+'</span></div><h1>'+esc(it.title)+'</h1><div class="meta" style="margin-top:8px"><span>Published '+esc(fmt(it.date))+'</span><span>'+esc(scopeText(it))+'</span></div>'+
@@ -232,10 +309,13 @@ function townDialog(){var d=document.getElementById("townDialog");var cur=S.pref
   if(d.showModal)d.showModal();else d.setAttribute("open","")}
 function setTown(t){S.prefs.town=t;savePrefs();render()}
 function route(){var h=location.hash.replace(/^#/,"");var el=document.getElementById("detail");if(h.indexOf("report-")===0){openDetail(h.slice(7));return}el.hidden=true;var valid=TABS.some(function(t){return t[0]===h});var next=valid?h:"home";if(next!==S.tab||!document.getElementById("app").firstChild){S.tab=next;render();window.scrollTo(0,0)}}
-document.addEventListener("click",function(e){var t=e.target.closest("[data-open],[data-tab],[data-cat],[data-town],[data-settown],[data-closedlg],[data-back],[data-pick]");if(!t)return;
+document.addEventListener("click",function(e){var t=e.target.closest("[data-open],[data-tab],[data-cat],[data-town],[data-settown],[data-closedlg],[data-back],[data-pick],[data-maptown],[data-more],[data-refresh]");if(!t)return;
+  if(t.hasAttribute("data-refresh")){refresh(true);return}
+  if(t.hasAttribute("data-maptown")){S.mapTown=t.getAttribute("data-maptown");if(S.tab==="map")render();else location.hash="map";return}
+  if(t.hasAttribute("data-more")){S.showAll=true;var y=window.scrollY;render();window.scrollTo(0,y);return}
   if(t.hasAttribute("data-open")){location.hash="report-"+t.getAttribute("data-open");return}
   if(t.hasAttribute("data-tab")){location.hash=t.getAttribute("data-tab");return}
-  if(t.hasAttribute("data-cat")){S.cat=t.getAttribute("data-cat");var x=window.scrollY;var cx=document.querySelector(".chips");var sl=cx?cx.scrollLeft:0;render();window.scrollTo(0,x);var c2=document.querySelector(".chips");if(c2)c2.scrollLeft=sl;return}
+  if(t.hasAttribute("data-cat")){var c=t.getAttribute("data-cat");var wasBar=t.classList.contains("topic");S.cat=(wasBar&&S.cat===c)?"all":c;var x=window.scrollY;render();window.scrollTo(0,x);if(wasBar&&S.cat!=="all"){var l=document.getElementById("latest");if(l&&l.scrollIntoView)l.scrollIntoView({block:"start"})}return}
   if(t.hasAttribute("data-town")){townDialog();return}
   if(t.hasAttribute("data-settown")){document.getElementById("townDialog").close();setTown(t.getAttribute("data-settown"));return}
   if(t.hasAttribute("data-closedlg")){document.getElementById("townDialog").close();return}
@@ -246,8 +326,15 @@ document.addEventListener("keydown",function(e){if((e.key==="Enter"||e.key===" "
 document.addEventListener("input",function(e){if(e.target.id==="q"){S.q=e.target.value;var pos=e.target.selectionStart;render();var q=document.getElementById("q");q.focus();try{q.setSelectionRange(pos,pos)}catch(err){}}});
 document.addEventListener("change",function(e){var t=e.target;if(t.id==="mapTown"){S.mapTown=t.value;render()}else if(t.id==="pTown"){setTown(t.value)}else if(t.id==="nLocal"){S.prefs.local=t.checked;savePrefs()}else if(t.id==="nProv"){S.prefs.province=t.checked;savePrefs()}else if(t.hasAttribute&&t.hasAttribute("data-topic")){var c=t.getAttribute("data-topic");S.prefs.cats=S.prefs.cats.filter(function(x){return x!==c});if(t.checked)S.prefs.cats.push(c);savePrefs()}});
 window.addEventListener("hashchange",route);
-function refresh(){if(!API)return;fetch(API.replace(/\/$/,"")+"/feed.php?limit=100").then(function(r){if(!r.ok)throw new Error(r.status);return r.json()}).then(function(j){if(j&&Array.isArray(j.items)){data.items=j.items;data.generated=j.generated||data.generated;live=true;var keep=window.scrollY;render();window.scrollTo(0,keep);if(location.hash.indexOf("#report-")===0)route()}}).catch(function(){})}
+function applyFeed(j){if(!j||!Array.isArray(j.items)||!j.items.length)return false;data.items=j.items;data.generated=j.generated||data.generated;if(j.metrics)data.metrics=j.metrics;live=true;return true}
+function repaint(){var q=document.activeElement&&document.activeElement.id==="q";if(q){var bar=document.querySelector(".freshness");if(bar)bar.outerHTML=freshness();return}var keep=window.scrollY;render();window.scrollTo(0,keep);if(location.hash.indexOf("#report-")===0)route()}
+function refresh(manual){if(!FEED||refreshing)return;refreshing=true;if(manual)repaint();
+  fetch(FEED+(FEED.indexOf("?")<0?"?":"&")+"t="+Date.now(),{cache:"no-store"}).then(function(r){if(!r.ok)throw new Error(r.status);return r.text()}).then(function(txt){var j=JSON.parse(txt);refreshing=false;feedFailed=false;fetchedAt=Date.now();if(applyFeed(j)){lastJson=txt;try{localStorage.setItem("bhw.feed",txt);localStorage.setItem("bhw.feedAt",String(fetchedAt))}catch(e){}}repaint()}).catch(function(){refreshing=false;feedFailed=true;repaint()})}
+function loadSavedFeed(){try{var t=localStorage.getItem("bhw.feed");if(t&&applyFeed(JSON.parse(t))){fetchedAt=Number(localStorage.getItem("bhw.feedAt"))||0}}catch(e){}}
+function checkAppVersion(){if(!native_||!native_.getVersionCode)return;var mine=Number(native_.getVersionCode());fetch(RELEASE_API,{cache:"no-store"}).then(function(r){return r.ok?r.json():null}).then(function(j){var m=j&&/^build-(\d+)$/.exec(j.tag_name||"");if(m&&Number(m[1])>mine){newVersion=true;repaint()}}).catch(function(){})}
+window.bhwRefresh=function(){refresh(false)};
 loadPrefs();savePrefs();
 S.tab=(function(){var h=location.hash.replace(/^#/,"");return TABS.some(function(t){return t[0]===h})?h:"home"})();
-render();route();refresh();
+loadSavedFeed();render();route();refresh(false);checkAppVersion();
+if(FEED){setInterval(function(){if(!document.hidden)refresh(false)},300000);document.addEventListener("visibilitychange",function(){if(!document.hidden&&Date.now()-fetchedAt>60000)refresh(false)})}
 </script>

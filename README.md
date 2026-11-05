@@ -6,6 +6,8 @@ A phone-first health news and alerts app for Bohol.
 web/app.html      The app screens, shared by the web and Android versions
 data/seed.json    The checked starting reports and health tips
 build.py          Puts the data into the app. Run it after editing either file
+build-apk-windows.bat   Builds the APK on Windows
+.github/workflows/      Builds the APK on GitHub
 backend/          PHP news collector, feed API and admin page
 android/          Android Studio project
 ```
@@ -19,16 +21,33 @@ android/          Android Studio project
 | Feed API, admin page, app reading live data | Tested together on PHP with SQLite |
 | MySQL | **Not tested.** No MySQL server was available. The SQL is kept portable |
 | Live feed fetch by the collector | **Not tested from the build machine,** which has no outbound network. Both feed URLs were read successfully with a separate tool on 5 Nov 2026 |
-| Android project | **Not compiled.** No Android SDK was available. Java syntax and XML were checked. Expect to fix small issues on the first build |
+| Android project | Compiled on GitHub Actions (run #3), before the live-news changes. Not yet tested on a phone |
+| Live feed flow | Tested locally with sample feeds. Not yet run on GitHub or against the real sites |
 
-## 1. Run the Android app
+## 1. Get the APK and live news (GitHub)
 
-1. Open the `android` folder in Android Studio and let Gradle sync.
-2. Press Run. The app opens with its bundled reports.
+This repo must stay **public**, because the app reads its news from it.
 
-The app shows those bundled reports and sends no notifications until you set `BHW_API_BASE`.
+1. Push or upload this folder to `main`, including `.github`, `live` and `android/app/debug.keystore`.
+2. **Build APK** runs by itself. Each build is published at
+   `https://github.com/Hanes22/BOHOL-HEALTH-WATCH/releases/latest/download/BoholHealthWatch.apk`
+3. **Update news** runs about every 15 minutes and writes `live/feed.json`. Start it once by hand from the Actions tab.
+4. If "Update news" can't push, set Settings > Actions > General > Workflow permissions to "Read and write".
 
-## 2. Put the backend online
+The app reads the feed when opened, when reopened, every 5 minutes while open, and in the background about every 15 minutes. GitHub can delay scheduled runs, so expect news within roughly 15 to 45 minutes, not instantly.
+
+### Change figures or alerts
+Edit `data/seed.json` on GitHub. The next "Update news" run applies it to everyone, with no new APK. Figures, alert status and manual Official labels come only from that file.
+
+### What publishes automatically
+Stories from the feeds in `backend/config.github.php` publish without review, including serious ones. They are labeled News report, except posts from the Provincial Government's site, which are labeled Official. Stories naming Bohol can trigger notifications.
+
+### Other ways to build
+`build-apk-windows.bat` or Android Studio also work, using the `android` folder.
+
+## 2. Optional: your own server with admin review
+
+Use this instead of the GitHub feed if you want a person to review serious stories before they appear.
 
 You need PHP 8.1 or newer with PDO, cURL and SimpleXML, plus a MySQL database and HTTPS.
 
@@ -38,9 +57,13 @@ You need PHP 8.1 or newer with PDO, cURL and SimpleXML, plus a MySQL database an
 4. Run `php bin/install.php` once.
 5. Add a cron job:
    `*/20 * * * * /usr/bin/php /path/to/backend/bin/collect.php >> /path/to/collect.log 2>&1`
-6. Set `BHW_API_BASE=https://yourdomain.com` in `android/gradle.properties`, then rebuild.
+6. Set `BHW_FEED_URL=https://yourdomain.com/feed.php?limit=100` in `android/gradle.properties`, then rebuild.
 
 To try it locally with no MySQL, use `'dsn' => 'sqlite:' . __DIR__ . '/data/bhw.sqlite'`, then run `php -S localhost:8080 -t public`.
+
+## Keeping the dashboard current
+
+The dengue totals and national trend are not collected automatically, because a wrong number here would mislead people. Update them under "Dashboard figures" in `admin.php` from a report you have read. The app shows each figure's dates, age and source.
 
 ## How reports flow
 
@@ -74,4 +97,5 @@ Add these through the admin page's manual form, or ask each office for a feed.
 
 - Have the Provincial Health Office or a health professional review the Health Tips.
 - Check the town positions in `web/app.html`. They are approximate, and the coastline is a sketch.
-- Replace the placeholder app icon, and add your release signing key.
+- Replace the placeholder app icon. Sign release builds with a private key, because `android/app/debug.keystore` is public.
+- Add a review step for serious stories, or use the option 2 server.
