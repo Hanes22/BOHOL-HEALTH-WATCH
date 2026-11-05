@@ -137,7 +137,8 @@
                 "name": "The Bohol Tribune",
                 "url": "https://theboholtribune.com/2026/11/01/local-news-109/"
             },
-            "notify": false
+            "notify": false,
+            "tone": "good"
         },
         {
             "seq": 5,
@@ -357,7 +358,8 @@
                 "name": "The Bohol Times",
                 "url": "https://theboholtimes.com/?p=15899"
             },
-            "notify": false
+            "notify": false,
+            "tone": "good"
         }
     ]
 }
