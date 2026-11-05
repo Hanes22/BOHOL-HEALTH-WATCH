@@ -48,6 +48,8 @@ check('atom parsed', $atom[0]['url'] ?? '', 'https://example.com/atom1');
 check('atom stored', bhw_ingest($db, $atom[0], 'Fixture'), 'stored_published');
 check('html page rejected as feed', bhw_parse_feed('<html><body><p>Not a feed'), []);
 
+$db->prepare("INSERT INTO reports (slug,title,title_norm,summary,facts,pub_date,category,scope,municipalities,source_name,source_url,url_hash,state,created_at) VALUES ('s','Seed wording','seed wording','x','[]','2026-11-01','dengue','province','[]','S','https://example.com/seeded/','h1','published','now')")->execute();
+check('same article under another title is a duplicate', bhw_ingest($db, ['title' => 'Dengue story with the original headline', 'url' => 'https://example.com/seeded', 'html' => 'x', 'date' => '2026-11-01'], 'Fixture'), 'duplicate');
 $row = $db->query("SELECT * FROM reports WHERE source_url='https://example.com/a'")->fetch();
 check('serious stays pending', $row['state'], 'pending');
 check('serious town', json_decode($row['municipalities'], true), ['Inabanga']);

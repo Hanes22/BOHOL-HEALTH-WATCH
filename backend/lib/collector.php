@@ -101,8 +101,10 @@ function bhw_ingest(PDO $db, array $it, string $sourceName, array $feed = []): s
         return 'not_health';
     }
     $hash = hash('sha256', strtolower(rtrim($it['url'], '/')));
-    $st = $db->prepare('SELECT 1 FROM reports WHERE url_hash = ?');
-    $st->execute([$hash]);
+    // Also match by address, because a seed report may carry its own wording of the same article.
+    $bare = rtrim($it['url'], '/');
+    $st = $db->prepare('SELECT 1 FROM reports WHERE url_hash = ? OR source_url = ? OR source_url = ?');
+    $st->execute([$hash, $bare, $bare . '/']);
     if ($st->fetchColumn()) {
         return 'duplicate';
     }

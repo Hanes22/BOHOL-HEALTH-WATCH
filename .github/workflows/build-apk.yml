@@ -2,9 +2,12 @@ name: Build APK
 
 on:
   push:
-    paths-ignore:
-      - "live/**"
-      - "**.md"
+    branches: [main]
+    paths:
+      - "android/**"
+      - "web/**"
+      - "build.py"
+      - ".github/workflows/build-apk.yml"
   workflow_dispatch:
 
 permissions:

@@ -36,6 +36,12 @@ foreach ($seed['items'] as $i) {
     }
 }
 
+// The hand-checked seed report wins when a collected copy of the same article is already stored.
+foreach ($seed['items'] as $i) {
+    $bare = rtrim($i['source']['url'], '/');
+    $db->prepare("DELETE FROM reports WHERE origin = 'feed' AND (source_url = ? OR source_url = ?)")->execute([$bare, $bare . '/']);
+}
+
 $ok = 0;
 $tried = bhw_config()['feeds'];
 foreach ($tried as $feed) {
