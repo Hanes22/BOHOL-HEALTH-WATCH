@@ -53,11 +53,21 @@ function bhw_install(PDO $db): void
         url_hash CHAR(64) NOT NULL UNIQUE,
         state VARCHAR(10) NOT NULL,
         pub_seq BIGINT NOT NULL DEFAULT 0,
+        image_url VARCHAR(700) NULL,
+        tone VARCHAR(10) NULL,
         serious INT NOT NULL DEFAULT 0,
         notify INT NOT NULL DEFAULT 0,
         origin VARCHAR(10) NOT NULL DEFAULT 'feed',
         created_at VARCHAR(25) NOT NULL
     )$tail");
+    // Databases created by an earlier version gain the newer columns here.
+    foreach (['image_url' => 'VARCHAR(700) NULL', 'tone' => 'VARCHAR(10) NULL'] as $col => $type) {
+        try {
+            $db->query("SELECT $col FROM reports LIMIT 1");
+        } catch (PDOException $e) {
+            $db->exec("ALTER TABLE reports ADD COLUMN $col $type");
+        }
+    }
     $db->exec("CREATE TABLE IF NOT EXISTS meta (
         k VARCHAR(40) NOT NULL PRIMARY KEY,
         v TEXT NOT NULL
@@ -118,6 +128,12 @@ function bhw_row_to_item(array $r): array
         'source' => ['name' => $r['source_name'], 'url' => $r['source_url']],
         'notify' => (bool) $r['notify'],
     ];
+    if (!empty($r['image_url'])) {
+        $item['image'] = $r['image_url'];
+    }
+    if (!empty($r['tone'])) {
+        $item['tone'] = $r['tone'];
+    }
     if (!empty($r['alert_note'])) {
         $item['alertNote'] = $r['alert_note'];
     }

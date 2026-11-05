@@ -27,6 +27,7 @@ jobs:
       - name: Collect news
         env:
           BHW_CONFIG: backend/config.github.php
+          FB_ACCESS_TOKEN: ${{ secrets.FB_ACCESS_TOKEN }}
           TZ: Asia/Manila
         run: php backend/bin/publish-static.php
 

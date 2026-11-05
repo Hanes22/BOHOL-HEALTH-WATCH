@@ -34,6 +34,22 @@ check('outbreak is serious', bhw_is_serious('Measles outbreak in town'), true);
 check('routine is not serious', bhw_is_serious('Vaccination opens on Monday'), false);
 check('excerpt strips tags', bhw_excerpt('<p>Hello <b>there</b> &amp; you</p>'), 'Hello there & you');
 
+check('single death is not an alert', bhw_alert_level('Girl dies after snakebite in Inabanga', 'news', 'municipal'), null);
+check('news outbreak is only watch', bhw_alert_level('Measles outbreak in Ubay', 'news', 'municipal'), 'watch');
+check('official outbreak is active', bhw_alert_level('Province declares measles outbreak', 'official', 'province'), 'active');
+check('rise in cases is watch', bhw_alert_level('Rise in dengue cases in Talibon', 'news', 'municipal'), 'watch');
+check('lifted outbreak is not an alert', bhw_alert_level('Dengue outbreak lifted in Bohol', 'official', 'province'), null);
+check('elsewhere is not an alert', bhw_alert_level('Measles outbreak abroad', 'news', 'national'), null);
+check('free checkups are good news', bhw_tone('Free medical mission for seniors in Jagna'), 'good');
+check('falling cases are good news', bhw_tone('Dengue cases drop in Bohol'), 'good');
+check('recovery with deaths is not good', bhw_tone('Two dead, three recovered after food poisoning'), null);
+check('zero deaths is good', bhw_tone('Zero deaths recorded as outbreak ends'), 'good');
+check('new hospital is health news', bhw_category('New hospital opens in Ubay'), 'services');
+check('logo image rejected', bhw_clean_image('https://x.com/logo.png'), null);
+check('http image rejected', bhw_clean_image('http://x.com/a.jpg'), null);
+check('https image kept', bhw_clean_image('https://x.com/a.jpg'), 'https://x.com/a.jpg');
+check('img tag read', bhw_first_img('<p><img class="a" src="https://x.com/b.jpg"></p>'), 'https://x.com/b.jpg');
+
 $db = bhw_db();
 bhw_install($db);
 $items = bhw_parse_feed((string) file_get_contents(__DIR__ . '/fixtures/rss.xml'));

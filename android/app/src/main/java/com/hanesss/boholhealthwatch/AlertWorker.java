@@ -15,7 +15,9 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.work.Constraints;
 import androidx.work.ExistingPeriodicWorkPolicy;
+import androidx.work.ExistingWorkPolicy;
 import androidx.work.NetworkType;
+import androidx.work.OneTimeWorkRequest;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
 import androidx.work.Worker;
@@ -59,6 +61,28 @@ public class AlertWorker extends Worker {
         WorkManager.getInstance(context).enqueueUniquePeriodicWork(WORK_NAME, ExistingPeriodicWorkPolicy.KEEP, request);
     }
 
+    /** Checks once right away, so news that arrived while the phone was off isn't delayed. */
+    static void checkNow(Context context) {
+        if (BuildConfig.FEED_URL.isEmpty()) {
+            return;
+        }
+        OneTimeWorkRequest request = new OneTimeWorkRequest.Builder(AlertWorker.class)
+                .setConstraints(new Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
+                .build();
+        WorkManager.getInstance(context).enqueueUniqueWork(WORK_NAME + "_now", ExistingWorkPolicy.KEEP, request);
+    }
+
+    static void postTest(Context context) {
+        try {
+            post(context, new JSONObject()
+                    .put("id", "test")
+                    .put("title", "Bohol Health Watch test")
+                    .put("summary", "Notifications are working."));
+        } catch (JSONException ignored) {
+            // These fixed values can't fail.
+        }
+    }
+
     @NonNull
     @Override
     public Result doWork() {
@@ -76,7 +100,7 @@ public class AlertWorker extends Worker {
                 for (int i = 0; i < items.length() && posted < MAX_PER_CHECK; i++) {
                     JSONObject item = items.getJSONObject(i);
                     if (item.optLong("seq", 0) > last && shouldNotify(item, user)) {
-                        post(item);
+                        post(getApplicationContext(), item);
                         posted++;
                     }
                 }
@@ -91,6 +115,10 @@ public class AlertWorker extends Worker {
     /** Mirrors the Profile tab: town, province-wide and topic choices. Only reports flagged notify are sent. */
     static boolean shouldNotify(JSONObject item, JSONObject user) {
         if (!item.optBoolean("notify", false)) {
+            return false;
+        }
+        boolean good = "good".equals(item.optString("tone"));
+        if (good && !user.optBoolean("good", true)) {
             return false;
         }
         JSONArray cats = user.optJSONArray("cats");
@@ -144,8 +172,7 @@ public class AlertWorker extends Worker {
         }
     }
 
-    private void post(JSONObject item) {
-        Context context = getApplicationContext();
+    private static void post(Context context, JSONObject item) {
         if (Build.VERSION.SDK_INT >= 33
                 && context.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
             return;
@@ -155,13 +182,15 @@ public class AlertWorker extends Worker {
                 CHANNEL, context.getString(R.string.channel_alerts), NotificationManager.IMPORTANCE_HIGH));
 
         String slug = item.optString("id");
+        String alert = item.optString("alert");
+        String prefix = "active".equals(alert) ? "Health alert: " : "watch".equals(alert) ? "Health watch: " : "good".equals(item.optString("tone")) ? "Good news: " : "";
         Intent open = new Intent(context, MainActivity.class).putExtra(MainActivity.EXTRA_REPORT, slug);
         PendingIntent tap = PendingIntent.getActivity(context, slug.hashCode(), open,
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
         NotificationCompat.Builder n = new NotificationCompat.Builder(context, CHANNEL)
                 .setSmallIcon(R.drawable.ic_notification)
-                .setContentTitle(item.optString("title"))
+                .setContentTitle(prefix + item.optString("title"))
                 .setContentText(item.optString("summary"))
                 .setStyle(new NotificationCompat.BigTextStyle().bigText(item.optString("summary")))
                 .setPriority(NotificationCompat.PRIORITY_HIGH)

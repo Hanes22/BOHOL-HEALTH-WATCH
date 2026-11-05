@@ -1,0 +1,94 @@
+name: Add a report
+
+# Use this for a post on a trusted Facebook page: Actions > Add a report > Run workflow.
+on:
+  workflow_dispatch:
+    inputs:
+      post_url:
+        description: "Link to the post"
+        required: true
+      title:
+        description: "Headline"
+        required: true
+      summary:
+        description: "One or two sentences. Only what the post says."
+        required: true
+      source_name:
+        description: "Who posted it"
+        required: true
+        default: "DOH Central Visayas"
+      official:
+        description: "Posted by a government health body or LGU"
+        type: boolean
+        default: true
+      category:
+        description: "Topic"
+        type: choice
+        default: services
+        options: [dengue, respiratory, leptospirosis, vaccination, bites, air, products, services, hiv, other]
+      alert:
+        description: "Alert status"
+        type: choice
+        default: none
+        options: [none, active, watch, ended]
+      towns:
+        description: "Bohol towns named, separated by commas. Leave empty for all of Bohol."
+        required: false
+      image_url:
+        description: "Direct https image link (optional)"
+        required: false
+      good_news:
+        description: "This is good news"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-news
+  cancel-in-progress: false
+
+jobs:
+  add:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Add the report to data/seed.json
+        env:
+          POST_URL: ${{ inputs.post_url }}
+          TITLE: ${{ inputs.title }}
+          SUMMARY: ${{ inputs.summary }}
+          SOURCE_NAME: ${{ inputs.source_name }}
+          OFFICIAL: ${{ inputs.official }}
+          CATEGORY: ${{ inputs.category }}
+          ALERT: ${{ inputs.alert }}
+          TOWNS: ${{ inputs.towns }}
+          IMAGE_URL: ${{ inputs.image_url }}
+          GOOD_NEWS: ${{ inputs.good_news }}
+        run: python3 backend/bin/add-report.py
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.3"
+          extensions: pdo_sqlite, curl, simplexml, mbstring
+          coverage: none
+
+      - name: Publish
+        env:
+          BHW_CONFIG: backend/config.github.php
+          FB_ACCESS_TOKEN: ${{ secrets.FB_ACCESS_TOKEN }}
+          TZ: Asia/Manila
+        run: php backend/bin/publish-static.php
+
+      - name: Commit
+        run: |
+          git config user.name "bohol-health-watch-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/seed.json live/feed.json live/state.sqlite
+          git commit -m "Add report: ${TITLE_SHORT}"
+          git pull --rebase origin main
+          git push
+        env:
+          TITLE_SHORT: ${{ inputs.source_name }}

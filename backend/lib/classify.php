@@ -24,11 +24,34 @@ const BHW_CATEGORIES = [
     'air' => '/\b(haze|air quality|heat ?stroke|heat index)\b/i',
     'products' => '/\b(fda (advisory|warns?|warning)|mercury|skin (lighten|whiten)\w*)\b/i',
     'other' => '/\b(food poisoning|diarrh?ea|cholera|typhoid|hand,? foot,? and mouth|hfmd|malaria|outbreak)\b/i',
-    'services' => '/\b(medical mission|health cent(er|re)s?|rural health units?|provincial health office|health office|department of health|doh|philhealth)\b/i',
+    'services' => '/\b(new (hospital|clinic|ambulance)s?|hospital (opens|upgrade\w*|inaugurat\w*)|blood (drive|donation|letting)|free (check-?ups?|consultations?|dental|surgery|screening)|medical mission|health cent(er|re)s?|rural health units?|provincial health office|health office|department of health|doh|philhealth)\b/i',
 ];
 
 // A report with any of these words waits for admin review before it appears.
 const BHW_SERIOUS = '/\b(outbreak|epidemic|deaths?|dies|died|dead|fatal\w*|namatay|patay|state of calamity|public health emergency|clusters?)\b/iu';
+
+// Alerts need a public-health signal. A single incident such as one death is news, not an alert.
+const BHW_ALERT = '/\b(outbreaks?|epidemic|public health emergency|state of calamity|health (alert|advisory|warning)|code (white|blue|red)|clusters?|(surge|spike|rise|increase) in (\w+ ){0,3}cases|cases? (surge|surged|spike|spiked|rise|rising|rose|increase|increased))\b/iu';
+const BHW_ALERT_STRONG = '/\b(outbreaks?|epidemic|public health emergency|state of calamity)\b/iu';
+const BHW_GOOD = '/\b(free (medical|dental|check-?ups?|consultations?|vaccin\w*|medicines?|eye|surgery|screening)|medical mission|blood (drive|donation|letting)|cases? (drop|drops|dropped|fall|fell|falls|declin\w*|down|decreas\w*)|(drop|decline|decrease) in (\w+ ){0,3}cases|outbreak (is )?(lifted|over|ended)|recover(ed|y|ies)|discharged|new (hospital|health cent\w+|clinic|ambulance)s?|inaugurat\w*|upgraded?|wins?|awarded?|award|recogni[sz]ed|dengue-free|zero (cases|deaths)|no (new )?(cases|deaths)|milestone|donat(es|ed|ions?)|fully immuni[sz]ed)\b/iu';
+const BHW_GOOD_OVERRIDES_SERIOUS = '/\b(zero deaths|no (new )?deaths|outbreak (is )?(lifted|over|ended))\b/iu';
+
+function bhw_tone(string $text): ?string
+{
+    if (!preg_match(BHW_GOOD, $text)) {
+        return null;
+    }
+    return bhw_is_serious($text) && !preg_match(BHW_GOOD_OVERRIDES_SERIOUS, $text) ? null : 'good';
+}
+
+/** Returns active, watch or null. News stays at watch. Only an official source can reach active. */
+function bhw_alert_level(string $text, string $trust, string $scope): ?string
+{
+    if ($scope === 'national' || bhw_tone($text) === 'good' || !preg_match(BHW_ALERT, $text)) {
+        return null;
+    }
+    return $trust === 'official' && preg_match(BHW_ALERT_STRONG, $text) ? 'active' : 'watch';
+}
 
 function bhw_category(string $text): ?string
 {

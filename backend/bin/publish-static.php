@@ -16,23 +16,28 @@ bhw_install($db);
 $seed = json_decode((string) file_get_contents("$root/data/seed.json"), true, 32, JSON_THROW_ON_ERROR);
 
 foreach ($seed['items'] as $i) {
-    $st = $db->prepare('SELECT seq FROM reports WHERE slug = ?');
+    $st = $db->prepare('SELECT seq, alert FROM reports WHERE slug = ?');
     $st->execute([$i['id']]);
-    $seq = $st->fetchColumn();
+    $old = $st->fetch();
+    $seq = $old ? $old['seq'] : false;
     $values = [
         $i['title'], bhw_norm_title($i['title']), $i['summary'], json_encode($i['facts'], JSON_UNESCAPED_UNICODE), $i['date'],
         $i['category'], $i['trust'], $i['alert'], $i['alertNote'] ?? null, $i['highlightNote'] ?? null, $i['scope'],
-        json_encode($i['municipalities'], JSON_UNESCAPED_UNICODE), $i['source']['name'], $i['source']['url'],
+        json_encode($i['municipalities'], JSON_UNESCAPED_UNICODE), $i['source']['name'], $i['source']['url'], $i['image'] ?? null, $i['tone'] ?? null,
     ];
     if ($seq) {
         $db->prepare('UPDATE reports SET title=?, title_norm=?, summary=?, facts=?, pub_date=?, category=?, trust=?, alert=?, alert_note=?,
-            highlight_note=?, scope=?, municipalities=?, source_name=?, source_url=? WHERE seq=?')->execute([...$values, $seq]);
+            highlight_note=?, scope=?, municipalities=?, source_name=?, source_url=?, image_url=?, tone=? WHERE seq=?')->execute([...$values, $seq]);
+        // A report that just became an alert counts as new, so phones are told.
+        if (in_array($i['alert'], ['active', 'watch'], true) && $old['alert'] !== $i['alert']) {
+            $db->prepare('UPDATE reports SET pub_seq = ?, notify = 1 WHERE seq = ?')->execute([bhw_next_pub_seq($db), $seq]);
+        }
     } else {
         $hash = hash('sha256', strtolower(rtrim($i['source']['url'], '/')) . '#' . $i['id']);
         $db->prepare("INSERT INTO reports (title, title_norm, summary, facts, pub_date, category, trust, alert, alert_note, highlight_note, scope,
-            municipalities, source_name, source_url, slug, url_hash, state, pub_seq, serious, notify, origin, created_at)
-            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,'published',?,0,0,'seed',?)")
-            ->execute([...$values, $i['id'], $hash, bhw_next_pub_seq($db), date('c')]);
+            municipalities, source_name, source_url, image_url, tone, slug, url_hash, state, pub_seq, serious, notify, origin, created_at)
+            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,'published',?,0,?,'seed',?)")
+            ->execute([...$values, $i['id'], $hash, bhw_next_pub_seq($db), empty($i['notify']) ? 0 : 1, date('c')]);
     }
 }
 
@@ -59,8 +64,49 @@ foreach ($tried as $feed) {
     }
     echo "{$feed['name']}: ", json_encode($tally), "\n";
 }
+// Facebook posts, once Meta has approved this app. Without a token this does nothing.
+$fbToken = getenv('FB_ACCESS_TOKEN') ?: '';
+if ($fbToken !== '') {
+    foreach (bhw_config()['facebook_pages'] ?? [] as $page) {
+        $query = http_build_query(['fields' => 'message,created_time,permalink_url,full_picture', 'limit' => 10, 'access_token' => $fbToken]);
+        $body = bhw_fetch('https://graph.facebook.com/v21.0/' . rawurlencode($page['id']) . '/posts?' . $query);
+        $posts = $body === null ? null : json_decode($body, true);
+        if (!is_array($posts) || !isset($posts['data'])) {
+            echo "FAILED Facebook {$page['name']}\n";
+            continue;
+        }
+        $tally = [];
+        foreach ($posts['data'] as $post) {
+            $message = trim((string) ($post['message'] ?? ''));
+            if ($message === '') {
+                continue;
+            }
+            $r = bhw_ingest($db, [
+                'title' => bhw_excerpt($message, 110), 'url' => (string) ($post['permalink_url'] ?? ''), 'html' => $message,
+                'date' => (string) ($post['created_time'] ?? ''), 'image' => $post['full_picture'] ?? null,
+            ], $page['name'], ['trust' => 'official', 'all_health' => true]);
+            $tally[$r] = ($tally[$r] ?? 0) + 1;
+        }
+        echo "Facebook {$page['name']}: ", json_encode($tally), "\n";
+    }
+}
 if ($ok > 0) {
     bhw_meta_set($db, 'last_collect', date('Y-m-d'));
+}
+
+/** A watch with no follow-up ends by itself. An active alert stays until a person ends it. */
+function bhw_expire_alert(array $r): array
+{
+    $days = $r['origin'] === 'feed' ? 14 : 30;
+    if ($r['alert'] === 'watch' && strtotime($r['pub_date']) < strtotime("-$days days")) {
+        $r['alert'] = 'ended';
+        $r['alert_note'] = "No update for $days days.";
+    }
+    if ($r['alert'] === 'active' && $r['origin'] === 'feed' && strtotime($r['pub_date']) < strtotime('-30 days')) {
+        $r['alert'] = 'unknown';
+        $r['alert_note'] = 'No update for 30 days, so check whether this still applies.';
+    }
+    return $r;
 }
 
 $rows = $db->query("SELECT * FROM reports WHERE state = 'published' ORDER BY pub_date DESC, pub_seq DESC LIMIT 200")->fetchAll();
@@ -69,7 +115,7 @@ $json = json_encode([
     'generated' => bhw_meta_get($db, 'last_collect') ?? $seed['generated'],
     'max_seq' => $max,
     'metrics' => $seed['metrics'] ?? null,
-    'items' => array_map('bhw_row_to_item', $rows),
+    'items' => array_map('bhw_row_to_item', array_map('bhw_expire_alert', $rows)),
 ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
 file_put_contents("$root/live/feed.json", $json . "\n");
 echo 'Wrote ', count($rows), " reports. $ok of ", count($tried), " feeds worked.\n";

@@ -84,7 +84,8 @@
       "source": {
         "name": "The Bohol Tribune",
         "url": "https://theboholtribune.com/2026/11/01/local-news-109/"
-      }
+      },
+      "tone": "good"
     },
     {
       "id": "code-white-kalagkalag",
@@ -286,7 +287,8 @@
       "source": {
         "name": "The Bohol Times",
         "url": "https://theboholtimes.com/?p=15899"
-      }
+      },
+      "tone": "good"
     }
   ],
   "tips": [
@@ -529,5 +531,17 @@
         "url": "https://tribune.net.ph/2026/11/04/doh-logs-31-flu-like-illnesses-surge"
       }
     }
-  }
+  },
+  "pages": [
+    {
+      "name": "Department of Health Philippines",
+      "note": "National health advisories",
+      "url": "https://www.facebook.com/OfficialDOHgov"
+    },
+    {
+      "name": "DOH Central Visayas Center for Health Development",
+      "note": "Regional updates for Bohol and Cebu",
+      "url": "https://www.facebook.com/341360329665812"
+    }
+  ]
 }

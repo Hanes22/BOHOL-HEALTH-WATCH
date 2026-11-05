@@ -40,7 +40,18 @@ The app reads the feed when opened, when reopened, every 5 minutes while open, a
 Edit `data/seed.json` on GitHub. The next "Update news" run applies it to everyone, with no new APK. Figures, alert status and manual Official labels come only from that file.
 
 ### What publishes automatically
-Stories from the feeds in `backend/config.github.php` publish without review, including serious ones. They are labeled News report, except posts from the Provincial Government's site, which are labeled Official. Stories naming Bohol can trigger notifications.
+Stories from the feeds in `backend/config.github.php` publish without review, including serious ones. They are labeled News report, except posts from the Provincial Government's site, which are labeled Official.
+
+- **Alerts:** a Bohol story about an outbreak, a rise in cases or a health advisory becomes a Watch. Only an official source can make an Active alert. A single incident, such as one death, stays news. A Watch ends after 14 days with no update.
+- **Good news:** free services, recoveries, falling cases and new facilities get a Good news label. Stories about deaths don't.
+- **Images:** taken from the feed or the article's sharing image. Stories about deaths or outbreaks get no image. Images load from the publisher and remain their property.
+- **Notifications:** stories naming Bohol or its towns can notify phones, subject to each person's Profile choices.
+
+### Trusted Facebook pages
+Facebook posts can't be collected automatically without Meta's approval. Meta requires a verified business, App Review and the Page Public Content Access feature.
+
+- **Today:** the app links to the official pages. To put a post in the app and notify phones, open Actions > **Add a report** > Run workflow, and fill in the form.
+- **After Meta approves your app:** add the token as a repository secret named `FB_ACCESS_TOKEN`. "Update news" then reads the pages in `backend/config.github.php`, labeled Official. This code path has never run against Facebook, so expect to test it.
 
 ### Other ways to build
 `build-apk-windows.bat` or Android Studio also work, using the `android` folder.

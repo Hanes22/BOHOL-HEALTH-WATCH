@@ -100,6 +100,17 @@ button{cursor:pointer}
 .freshness{justify-content:space-between;align-items:center}
 .refresh{appearance:none;flex:none;min-height:36px;padding:0 10px;background:none;border:1px solid var(--line);border-radius:6px;color:var(--link);font-weight:700;font-size:14px}
 .update{display:block;padding-block:12px;background:var(--amber-soft);color:var(--ink);font-weight:700}
+.thumb{display:block;width:100%;max-height:190px;object-fit:cover;border-radius:6px;margin-bottom:10px;background:var(--surface)}
+.hero-img{margin:12px 0}
+.hero-img img{display:block;width:100%;border-radius:6px;background:var(--surface)}
+.hero-img figcaption{font-size:13px;color:var(--muted);margin-top:4px}
+.s-new{background:var(--blue);color:var(--blue-ink)}
+.s-good{background:var(--green-soft);color:var(--green)}
+.good-row,.page-link{appearance:none;display:block;width:100%;text-align:left;background:none;border:0;border-top:1px solid var(--line);padding:12px 0;color:inherit;text-decoration:none}
+.good-row strong,.page-link strong{display:block;font:600 19px/1.2 var(--display)}
+.good-row span,.page-link span{display:block;font-size:14px;color:var(--muted);margin-top:3px}
+.page-link strong{color:var(--link)}
+.notify-strip{margin-top:0}
 .section-title{font:700 14px/1 var(--display);letter-spacing:.07em;text-transform:uppercase;color:var(--muted);padding-block:20px 8px}
 .chips{display:flex;gap:8px;overflow-x:auto;padding-block:12px 4px;scrollbar-width:none}
 .chips::-webkit-scrollbar{display:none}
@@ -191,7 +202,7 @@ var TOWNS={"Alburquerque":[9.61,123.96],"Alicia":[9.90,124.44],"Anda":[9.75,124.
 var COAST=[[9.66,123.85],[9.74,123.825],[9.80,123.78],[9.86,123.81],[9.90,123.87],[9.955,123.95],[9.98,124.03],[10.05,124.06],[10.09,124.10],[10.17,124.16],[10.18,124.32],[10.14,124.39],[10.09,124.44],[10.06,124.50],[9.95,124.57],[9.86,124.56],[9.76,124.60],[9.72,124.50],[9.70,124.42],[9.64,124.37],[9.60,124.27],[9.585,124.15],[9.575,124.08],[9.585,124.00],[9.60,123.93],[9.63,123.885]];
 var PANGLAO=[[9.645,123.84],[9.625,123.875],[9.60,123.855],[9.56,123.77],[9.545,123.73],[9.575,123.72],[9.61,123.78]];
 var CPG=[[10.145,124.51],[10.14,124.55],[10.10,124.555],[10.095,124.515]];
-var CATS={dengue:"Dengue",respiratory:"Flu and respiratory",leptospirosis:"Leptospirosis",vaccination:"Vaccination",bites:"Bites",air:"Air quality",products:"Product safety",services:"Health services",hiv:"HIV",other:"Other health"};
+var CATS={dengue:"Dengue",respiratory:"Flu and respiratory",leptospirosis:"Leptospirosis",vaccination:"Vaccination",bites:"Bites",air:"Air quality",products:"Product safety",services:"Health services",hiv:"HIV",other:"Other health",good:"Good news"};
 var SCOPE={province:"All Bohol",region:"Central Visayas",national:"Nationwide"};
 var ALERT={active:"Active",watch:"Watch",unknown:"Check status",ended:"Ended"};
 var ICONS={
@@ -208,8 +219,9 @@ var native_=window.BHWNative||null;
 var FEED=(native_&&native_.getFeedUrl&&native_.getFeedUrl())||window.BHW_FEED_URL||(window.BHW_API?window.BHW_API.replace(/\/$/,"")+"/feed.php?limit=100":"");
 var RELEASE_API="https://api.github.com/repos/Hanes22/BOHOL-HEALTH-WATCH/releases/latest";
 var APK_URL="https://github.com/Hanes22/BOHOL-HEALTH-WATCH/releases/latest/download/BoholHealthWatch.apk";
+var seenSeq=0,notifyOn=true,seenBaseSet=false,seenBaseVal=0;
 var fetchedAt=0,feedFailed=false,refreshing=false,lastJson="",newVersion=false;
-var S={tab:"home",cat:"all",q:"",showAll:false,mapTown:null,prefs:{town:"",local:true,province:true,cats:Object.keys(CATS)}};
+var S={tab:"home",cat:"all",q:"",showAll:false,mapTown:null,prefs:{town:"",local:true,province:true,good:true,cats:Object.keys(CATS).filter(function(c){return c!=="good"})}};
 
 function loadPrefs(){try{var p=JSON.parse(localStorage.getItem("bhw.prefs")||"null");if(p&&typeof p==="object"){for(var k in S.prefs)if(k in p)S.prefs[k]=p[k]}}catch(e){}
   if(S.prefs.town&&!TOWNS[S.prefs.town])S.prefs.town="";}
@@ -224,8 +236,11 @@ function appliesTo(it,town){return !town||it.scope!=="municipal"||(it.municipali
 function named(it,town){return !!town&&(it.municipalities||[]).indexOf(town)>=0}
 function inTown(town){return items().filter(function(it){return appliesTo(it,town)})}
 function scopeText(it){if(it.scope==="municipal")return (it.municipalities||[]).join(", ");return SCOPE[it.scope]||""}
-function stamps(it){var h="";if(it.alert)h+='<span class="stamp s-'+esc(it.alert)+'">'+esc(ALERT[it.alert]||it.alert)+'</span>';h+='<span class="stamp s-'+(it.trust==="official"?"official":"news")+'">'+(it.trust==="official"?"Official":"News report")+'</span>';return h}
-function row(it){var town=S.prefs.town;return '<li><button class="row gutter" data-open="'+esc(it.id)+'"><div class="meta">'+stamps(it)+'<span>'+esc(fmt(it.date))+'</span><span>'+esc(scopeText(it))+'</span></div><h3>'+esc(it.title)+'</h3><p>'+esc(it.summary)+'</p>'+(named(it,town)?'<div class="here">Names '+esc(town)+'</div>':'')+'</button></li>'}
+function stamps(it){var h="";if(it.alert)h+='<span class="stamp s-'+esc(it.alert)+'">'+esc(ALERT[it.alert]||it.alert)+'</span>';if(isNew(it))h+='<span class="stamp s-new">New</span>';if(it.tone==="good")h+='<span class="stamp s-good">Good news</span>';h+='<span class="stamp s-'+(it.trust==="official"?"official":"news")+'">'+(it.trust==="official"?"Official":"News report")+'</span>';return h}
+function isNew(it){return seenSeq>0&&Number(it.seq||0)>seenSeq}
+function imgUrl(u){return /^https:\/\//i.test(String(u||""))?String(u):""}
+function thumb(it){var u=imgUrl(it.image);return u?'<img class="thumb" src="'+esc(u)+'" alt="" loading="lazy" referrerpolicy="no-referrer">':""}
+function row(it){var town=S.prefs.town;return '<li><button class="row gutter" data-open="'+esc(it.id)+'">'+thumb(it)+'<div class="meta">'+stamps(it)+'<span>'+esc(fmt(it.date))+'</span><span>'+esc(scopeText(it))+'</span></div><h3>'+esc(it.title)+'</h3><p>'+esc(it.summary)+'</p>'+(named(it,town)?'<div class="here">Names '+esc(town)+'</div>':'')+'</button></li>'}
 function freshness(){var gen=data.generated;var age=Math.floor((Date.now()-day(gen).getTime())/864e5);var stale=age>3;
   var msg;
   if(!FEED)msg="Reports checked up to "+fmt(gen)+". This copy does not update by itself.";
@@ -252,16 +267,21 @@ function panelNational(){var m=(data.metrics||{}).national;if(!m)return "";
 function panelTopics(list){var counts={};list.forEach(function(i){counts[i.category]=(counts[i.category]||0)+1});var keys=Object.keys(CATS).filter(function(c){return counts[c]}).sort(function(a,b){return counts[b]-counts[a]});var max=keys.length?counts[keys[0]]:1;
   return '<section class="panel gutter"><div class="panel-head"><h2>Reports by topic</h2><span class="panel-sub">'+list.length+' reports. Tap to filter</span></div>'+
   keys.map(function(c){return '<button class="topic" data-cat="'+c+'" aria-pressed="'+(S.cat===c)+'" title="'+esc(CATS[c])+': '+counts[c]+' reports"><span class="topic-name">'+esc(CATS[c])+'</span><span class="topic-track"><span class="topic-bar" style="width:'+Math.max(6,Math.round(counts[c]/max*100))+'%"></span></span><span class="topic-val">'+counts[c]+'</span></button>'}).join("")+'</section>'}
-function vHome(){var town=S.prefs.town;var list=inTown(town);var alerts=list.filter(function(i){return i.alert});var top=items().filter(function(i){return i.alert==="active"&&appliesTo(i,town)})[0];
+function panelGood(list){var good=list.filter(function(i){return i.tone==="good"});if(!good.length)return "";return '<section class="panel gutter good-panel"><div class="panel-head"><h2>Good news</h2><button class="clear" data-cat="good">See all '+good.length+'</button></div>'+good.slice(0,2).map(function(i){return '<button class="good-row" data-open="'+esc(i.id)+'">'+thumb(i)+'<strong>'+esc(i.title)+'</strong><span>'+esc(fmt(i.date))+' &middot; '+esc(i.source.name)+'</span></button>'}).join("")+'</section>'}
+function panelPages(){var pages=data.pages||[];if(!pages.length)return "";return '<section class="panel gutter"><div class="panel-head"><h2>Official health pages</h2><span class="panel-sub">Opens Facebook</span></div>'+pages.map(function(p){return '<a class="page-link" href="'+esc(safeUrl(p.url))+'" target="_blank" rel="noopener"><strong>'+esc(p.name)+'</strong><span>'+esc(p.note)+'</span></a>'}).join("")+'</section>'}
+function notifyStrip(){if(!native_||!native_.getNotificationStatus||notifyOn)return "";return '<button class="care notify-strip" data-notify><strong>Notifications are off</strong><span>Turn on to get health alerts &rsaquo;</span></button>'}
+function readNotify(){if(native_&&native_.getNotificationStatus){try{notifyOn=native_.getNotificationStatus()==="on"}catch(e){}}}
+window.bhwNotifyChanged=function(){readNotify();repaint()};
+function vHome(){var town=S.prefs.town;var list=inTown(town);var alerts=list.filter(function(i){return i.alert});var cur=items().filter(function(i){return (i.alert==="active"||i.alert==="watch")&&appliesTo(i,town)});var top=cur.filter(function(i){return i.alert==="active"})[0]||cur[0];
   function cnt(a){return alerts.filter(function(i){return i.alert===a}).length}
-  var brief=top?'<div class="hero-alert"><span class="stamp s-active">Active alert</span><h2>'+esc(top.title)+'</h2><p>'+esc(top.alertNote||"")+(named(top,town)?' '+esc(town)+' is '+esc(top.highlightNote||"named in this report")+'.':'')+'</p><button class="brief-link" data-open="'+esc(top.id)+'">Read this alert</button></div>':'<p class="brief">No active alert in this copy of the reports.</p>';
+  var brief=top?'<div class="hero-alert"><span class="stamp s-active">'+(top.alert==="active"?"Active alert":"Watch")+'</span><h2>'+esc(top.title)+'</h2><p>'+esc(top.alertNote||"")+(named(top,town)?' '+esc(town)+' is '+esc(top.highlightNote||"named in this report")+'.':'')+'</p><button class="brief-link" data-open="'+esc(top.id)+'">Read this alert</button></div>':'<p class="brief">No active alert in this copy of the reports.</p>';
   var q=S.q.trim().toLowerCase();var pool=q?items():list;
-  var shown=pool.filter(function(i){return (S.cat==="all"||i.category===S.cat)&&(!q||(i.title+" "+i.summary+" "+(i.municipalities||[]).join(" ")).toLowerCase().indexOf(q)>=0)});
+  var shown=pool.filter(function(i){return (S.cat==="all"||i.category===S.cat||(S.cat==="good"&&i.tone==="good"))&&(!q||(i.title+" "+i.summary+" "+(i.municipalities||[]).join(" ")).toLowerCase().indexOf(q)>=0)});
   var limited=!q&&S.cat==="all"&&!S.showAll&&shown.length>5;var visible=limited?shown.slice(0,5):shown;
-  var heading=S.cat==="all"?"Latest reports":CATS[S.cat]+" reports";
+  var heading=S.cat==="all"?"Latest reports":S.cat==="good"?"Good news":CATS[S.cat]+" reports";
   return '<header class="masthead gutter"><div class="brand">Bohol Health Watch</div><button class="town-btn" data-town aria-label="Change town"><b>'+esc(town||"All Bohol")+'</b><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>'+brief+
   '<button class="counts" data-tab="alerts" aria-label="Open alerts"><span><b>'+cnt("active")+'</b>Active</span><span><b>'+cnt("watch")+'</b>Watch</span><span><b>'+cnt("unknown")+'</b>Check status</span><span><b>'+cnt("ended")+'</b>Ended</span></button></header>'+freshness()+
-  '<div class="dash"><div class="dash-col">'+panelDengue(town)+'<div class="gutter"><button class="care" data-tab="tips"><strong>Have a fever?</strong><span>See the dengue warning signs &rsaquo;</span></button></div>'+panelNational()+'</div><div class="dash-col">'+panelTopics(list)+
+  '<div class="dash"><div class="dash-col">'+panelDengue(town)+'<div class="gutter"><button class="care" data-tab="tips"><strong>Have a fever?</strong><span>See the dengue warning signs &rsaquo;</span></button>'+notifyStrip()+'</div>'+panelNational()+panelPages()+'</div><div class="dash-col">'+panelGood(list)+panelTopics(list)+
   '<section class="latest" id="latest"><div class="latest-head gutter"><h2>'+esc(heading)+'</h2>'+(S.cat!=="all"?'<button class="clear" data-cat="all">Show all topics</button>':'')+'</div><div class="gutter"><label for="q" hidden>Search reports</label><input id="q" class="search" type="search" placeholder="Search all Bohol reports" value="'+esc(S.q)+'"></div>'+
   '<div id="feed"><ul class="list">'+visible.map(row).join("")+'</ul>'+(shown.length?"":'<p class="empty gutter">No reports match. Try another topic or word.</p>')+(limited?'<div class="gutter"><button class="more" data-more>Show all '+shown.length+' reports</button></div>':'')+'</div></section></div></div>'}
 function vAlerts(){var town=S.prefs.town;var all=inTown(town).filter(function(i){return i.alert});var cur=all.filter(function(i){return i.alert==="active"||i.alert==="watch"||i.alert==="unknown"});var old=all.filter(function(i){return i.alert==="ended"});
@@ -290,10 +310,10 @@ function contact(){var c=data.contact;return '<section class="contact gutter"><h
 function vProfile(){var p=S.prefs;var opts='<option value="">All Bohol</option>'+Object.keys(TOWNS).map(function(t){return '<option'+(t===p.town?' selected':'')+' value="'+esc(t)+'">'+esc(t)+'</option>'}).join("");
   var hasNative=!!native_;
   return '<div class="page-head gutter"><h1>Profile</h1><p>No account needed. Your choices stay on this phone.</p></div><div class="gutter"><div class="field"><label for="pTown">My town</label><select id="pTown">'+opts+'</select></div>'+
-  '<h2 class="section-title" style="padding-left:0">Notifications</h2>'+(hasNative?'':'<div class="note">Notifications arrive through the Android app. In a web browser, these choices only save your preferences.</div>')+
+  '<h2 class="section-title" style="padding-left:0">Notifications</h2>'+(hasNative?'<div class="note"><strong>'+(notifyOn?'Notifications are on':'Notifications are off')+'</strong><br><button class="more" '+(notifyOn?'data-testnotify>Send a test notification':'data-notify>Turn on notifications')+'</button></div>':'<div class="note">Notifications arrive through the Android app. In a web browser, these choices only save your preferences.</div>')+
   '<label class="toggle"><span>My town<small>Reports that name '+esc(p.town||"your town")+'</small></span><input type="checkbox" id="nLocal"'+(p.local?" checked":"")+'></label>'+
   '<label class="toggle"><span>Province-wide<small>Alerts for all of Bohol</small></span><input type="checkbox" id="nProv"'+(p.province?" checked":"")+'></label>'+
-  '<h2 class="section-title" style="padding-left:0">Topics</h2>'+Object.keys(CATS).map(function(c){return '<label class="toggle"><span>'+esc(CATS[c])+'</span><input type="checkbox" data-topic="'+c+'"'+(p.cats.indexOf(c)>=0?" checked":"")+'></label>'}).join("")+
+  '<label class="toggle"><span>Good news<small>Free services, recoveries and falling cases</small></span><input type="checkbox" id="nGood"'+(p.good!==false?" checked":"")+'></label>'+'<h2 class="section-title" style="padding-left:0">Topics</h2>'+Object.keys(CATS).filter(function(c){return c!=="good"}).map(function(c){return '<label class="toggle"><span>'+esc(CATS[c])+'</span><input type="checkbox" data-topic="'+c+'"'+(p.cats.indexOf(c)>=0?" checked":"")+'></label>'}).join("")+
   '<h2 class="section-title" style="padding-left:0">About these reports</h2><p><strong>Official</strong> means a government health body or LGU made the statement. <strong>News report</strong> means a news outlet reported it and we have not confirmed it with an official source. Every report links to its source.</p><p>This app is not run by the DOH or the Provincial Government of Bohol. It does not replace medical advice.</p></div>'+contact()}
 function renderNav(){var cur=inTown(S.prefs.town).filter(function(i){return i.alert==="active"||i.alert==="watch"}).length;
   document.getElementById("nav").innerHTML=TABS.map(function(t){return '<button data-tab="'+t[0]+'"'+(S.tab===t[0]?' aria-current="page"':'')+'><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true">'+ICONS[t[0]]+'</svg>'+t[1]+(t[0]==="alerts"&&cur?'<span class="badge" aria-label="'+cur+' current">'+cur+'</span>':'')+'</button>'}).join("")}
@@ -301,7 +321,7 @@ function render(){document.getElementById("app").className=S.tab==="home"?"wide"
 function openDetail(id){var it=data.items.filter(function(i){return String(i.id)===id})[0];var el=document.getElementById("detail");if(!it){el.hidden=true;return}
   var noteCls=it.alert==="active"?"s-active":it.alert==="ended"?"s-ended":"s-watch";
   el.innerHTML='<div class="detail-in gutter"><button class="back" data-back>&lsaquo; Back</button><div class="meta">'+stamps(it)+'<span>'+esc(CATS[it.category]||it.category)+'</span></div><h1>'+esc(it.title)+'</h1><div class="meta" style="margin-top:8px"><span>Published '+esc(fmt(it.date))+'</span><span>'+esc(scopeText(it))+'</span></div>'+
-  (it.alertNote?'<div class="status-note '+noteCls+'">'+esc(it.alertNote)+'</div>':'')+'<p class="lede">'+esc(it.summary)+'</p>'+(it.facts&&it.facts.length?'<ul>'+it.facts.map(function(f){return '<li>'+esc(f)+'</li>'}).join("")+'</ul>':'')+
+  (imgUrl(it.image)?'<figure class="hero-img"><img src="'+esc(imgUrl(it.image))+'" alt="" referrerpolicy="no-referrer"><figcaption>Image from '+esc(it.source.name)+'</figcaption></figure>':'')+(it.alertNote?'<div class="status-note '+noteCls+'">'+esc(it.alertNote)+'</div>':'')+'<p class="lede">'+esc(it.summary)+'</p>'+(it.facts&&it.facts.length?'<ul>'+it.facts.map(function(f){return '<li>'+esc(f)+'</li>'}).join("")+'</ul>':'')+
   '<a class="source-btn" href="'+esc(safeUrl(it.source.url))+'" target="_blank" rel="noopener">Read the original at '+esc(it.source.name)+'</a><p class="disclaimer">'+(it.trust==="official"?"This reports a statement from a government health body or LGU.":"This is a news report. We have not confirmed it with an official source.")+'</p></div>';
   el.hidden=false;el.scrollTop=0;el.focus({preventScroll:true})}
 function townDialog(){var d=document.getElementById("townDialog");var cur=S.prefs.town;
@@ -309,7 +329,9 @@ function townDialog(){var d=document.getElementById("townDialog");var cur=S.pref
   if(d.showModal)d.showModal();else d.setAttribute("open","")}
 function setTown(t){S.prefs.town=t;savePrefs();render()}
 function route(){var h=location.hash.replace(/^#/,"");var el=document.getElementById("detail");if(h.indexOf("report-")===0){openDetail(h.slice(7));return}el.hidden=true;var valid=TABS.some(function(t){return t[0]===h});var next=valid?h:"home";if(next!==S.tab||!document.getElementById("app").firstChild){S.tab=next;render();window.scrollTo(0,0)}}
-document.addEventListener("click",function(e){var t=e.target.closest("[data-open],[data-tab],[data-cat],[data-town],[data-settown],[data-closedlg],[data-back],[data-pick],[data-maptown],[data-more],[data-refresh]");if(!t)return;
+document.addEventListener("click",function(e){var t=e.target.closest("[data-open],[data-tab],[data-cat],[data-town],[data-settown],[data-closedlg],[data-back],[data-pick],[data-maptown],[data-more],[data-refresh],[data-notify],[data-testnotify]");if(!t)return;
+  if(t.hasAttribute("data-notify")){if(native_&&native_.requestNotifications)native_.requestNotifications();return}
+  if(t.hasAttribute("data-testnotify")){if(native_&&native_.sendTestNotification)native_.sendTestNotification();t.textContent="Test sent. Check your notifications.";return}
   if(t.hasAttribute("data-refresh")){refresh(true);return}
   if(t.hasAttribute("data-maptown")){S.mapTown=t.getAttribute("data-maptown");if(S.tab==="map")render();else location.hash="map";return}
   if(t.hasAttribute("data-more")){S.showAll=true;var y=window.scrollY;render();window.scrollTo(0,y);return}
@@ -323,10 +345,13 @@ document.addEventListener("click",function(e){var t=e.target.closest("[data-open
   if(t.hasAttribute("data-pick")){S.mapTown=t.getAttribute("data-pick");render();return}
 });
 document.addEventListener("keydown",function(e){if((e.key==="Enter"||e.key===" ")&&e.target.closest&&e.target.closest("[data-pick]")){e.preventDefault();S.mapTown=e.target.closest("[data-pick]").getAttribute("data-pick");render()}});
+document.addEventListener("error",function(e){if(e.target&&e.target.tagName==="IMG"){var f=e.target.closest("figure");if(f)f.hidden=true;else e.target.hidden=true}},true);
 document.addEventListener("input",function(e){if(e.target.id==="q"){S.q=e.target.value;var pos=e.target.selectionStart;render();var q=document.getElementById("q");q.focus();try{q.setSelectionRange(pos,pos)}catch(err){}}});
-document.addEventListener("change",function(e){var t=e.target;if(t.id==="mapTown"){S.mapTown=t.value;render()}else if(t.id==="pTown"){setTown(t.value)}else if(t.id==="nLocal"){S.prefs.local=t.checked;savePrefs()}else if(t.id==="nProv"){S.prefs.province=t.checked;savePrefs()}else if(t.hasAttribute&&t.hasAttribute("data-topic")){var c=t.getAttribute("data-topic");S.prefs.cats=S.prefs.cats.filter(function(x){return x!==c});if(t.checked)S.prefs.cats.push(c);savePrefs()}});
+document.addEventListener("change",function(e){var t=e.target;if(t.id==="mapTown"){S.mapTown=t.value;render()}else if(t.id==="pTown"){setTown(t.value)}else if(t.id==="nLocal"){S.prefs.local=t.checked;savePrefs()}else if(t.id==="nProv"){S.prefs.province=t.checked;savePrefs()}else if(t.id==="nGood"){S.prefs.good=t.checked;savePrefs()}else if(t.hasAttribute&&t.hasAttribute("data-topic")){var c=t.getAttribute("data-topic");S.prefs.cats=S.prefs.cats.filter(function(x){return x!==c});if(t.checked)S.prefs.cats.push(c);savePrefs()}});
 window.addEventListener("hashchange",route);
-function applyFeed(j){if(!j||!Array.isArray(j.items)||!j.items.length)return false;data.items=j.items;data.generated=j.generated||data.generated;if(j.metrics)data.metrics=j.metrics;live=true;return true}
+function markSeen(){var max=0;data.items.forEach(function(i){max=Math.max(max,Number(i.seq||0))});if(max>seenSeq){var prior=0;try{prior=Number(localStorage.getItem("bhw.seen"))||0;localStorage.setItem("bhw.seen",String(max))}catch(e){}return prior}return seenSeq}
+function applyFeed(j){if(!j||!Array.isArray(j.items)||!j.items.length)return false;data.items=j.items;data.generated=j.generated||data.generated;if(j.metrics)data.metrics=j.metrics;live=true;seenSeq=seenBase();return true}
+function seenBase(){if(!seenBaseSet){seenBaseSet=true;seenBaseVal=markSeen()}else markSeen();return seenBaseVal}
 function repaint(){var q=document.activeElement&&document.activeElement.id==="q";if(q){var bar=document.querySelector(".freshness");if(bar)bar.outerHTML=freshness();return}var keep=window.scrollY;render();window.scrollTo(0,keep);if(location.hash.indexOf("#report-")===0)route()}
 function refresh(manual){if(!FEED||refreshing)return;refreshing=true;if(manual)repaint();
   fetch(FEED+(FEED.indexOf("?")<0?"?":"&")+"t="+Date.now(),{cache:"no-store"}).then(function(r){if(!r.ok)throw new Error(r.status);return r.text()}).then(function(txt){var j=JSON.parse(txt);refreshing=false;feedFailed=false;fetchedAt=Date.now();if(applyFeed(j)){lastJson=txt;try{localStorage.setItem("bhw.feed",txt);localStorage.setItem("bhw.feedAt",String(fetchedAt))}catch(e){}}repaint()}).catch(function(){refreshing=false;feedFailed=true;repaint()})}
@@ -335,6 +360,6 @@ function checkAppVersion(){if(!native_||!native_.getVersionCode)return;var mine=
 window.bhwRefresh=function(){refresh(false)};
 loadPrefs();savePrefs();
 S.tab=(function(){var h=location.hash.replace(/^#/,"");return TABS.some(function(t){return t[0]===h})?h:"home"})();
-loadSavedFeed();render();route();refresh(false);checkAppVersion();
+readNotify();loadSavedFeed();render();route();refresh(false);checkAppVersion();
 if(FEED){setInterval(function(){if(!document.hidden)refresh(false)},300000);document.addEventListener("visibilitychange",function(){if(!document.hidden&&Date.now()-fetchedAt>60000)refresh(false)})}
 </script>

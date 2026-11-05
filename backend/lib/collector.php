@@ -21,6 +21,7 @@ function bhw_parse_feed(string $xml): array
                 'url' => trim((string) $i->link),
                 'html' => (string) $i->description,
                 'date' => (string) $i->pubDate,
+                'image' => bhw_item_image($i),
             ];
         }
         return $out;
@@ -37,9 +38,55 @@ function bhw_parse_feed(string $xml): array
             'url' => trim((string) ($link[0] ?? '')),
             'html' => (string) ($body[0] ?? ''),
             'date' => (string) ($when[0] ?? ''),
+            'image' => bhw_first_img((string) ($body[0] ?? '')),
         ];
     }
     return $out;
+}
+
+function bhw_clean_image(?string $url): ?string
+{
+    $url = html_entity_decode(trim((string) $url), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+    // Secure links only, and no tracking pixels or site logos.
+    if (!preg_match('#^https://[^\s"\'<>]+$#i', $url) || strlen($url) > 700 || preg_match('#(logo|favicon|avatar|gravatar|pixel|blank)#i', $url)) {
+        return null;
+    }
+    return $url;
+}
+
+function bhw_first_img(string $html): ?string
+{
+    return preg_match('/<img[^>]+src=["\']([^"\']+)["\']/i', $html, $m) ? bhw_clean_image($m[1]) : null;
+}
+
+function bhw_item_image(SimpleXMLElement $i): ?string
+{
+    $media = $i->children('http://search.yahoo.com/mrss/');
+    foreach ([$media->content ?? null, $media->thumbnail ?? null] as $tag) {
+        if ($tag !== null && count($tag) > 0 && ($u = bhw_clean_image((string) $tag->attributes()->url))) {
+            return $u;
+        }
+    }
+    if (isset($i->enclosure) && str_starts_with((string) $i->enclosure['type'], 'image/') && ($u = bhw_clean_image((string) $i->enclosure['url']))) {
+        return $u;
+    }
+    $encoded = (string) $i->children('http://purl.org/rss/1.0/modules/content/')->encoded;
+    return bhw_first_img($encoded) ?? bhw_first_img((string) $i->description);
+}
+
+/** Reads the picture the article itself offers for sharing. Used when the feed has none. */
+function bhw_page_image(string $url): ?string
+{
+    $html = bhw_fetch($url);
+    if ($html === null) {
+        return null;
+    }
+    foreach (['/<meta[^>]+property=["\']og:image["\'][^>]+content=["\']([^"\']+)["\']/i', '/<meta[^>]+content=["\']([^"\']+)["\'][^>]+property=["\']og:image["\']/i'] as $re) {
+        if (preg_match($re, $html, $m) && ($u = bhw_clean_image($m[1]))) {
+            return $u;
+        }
+    }
+    return null;
 }
 
 function bhw_fetch(string $url): ?string
@@ -96,7 +143,7 @@ function bhw_ingest(PDO $db, array $it, string $sourceName, array $feed = []): s
     if (!empty($feed['require_bohol']) && !preg_match('/\b(Bohol|Boholano|Tagbilaran|Panglao)\b/iu', $text)) {
         return 'not_bohol';
     }
-    $category = bhw_category($text);
+    $category = bhw_category($text) ?? (!empty($feed['all_health']) ? 'services' : null);
     if ($category === null) {
         return 'not_health';
     }
@@ -122,13 +169,25 @@ function bhw_ingest(PDO $db, array $it, string $sourceName, array $feed = []): s
     $hold = $serious && !$auto;
     $state = $hold ? 'pending' : 'published';
     $scope = bhw_scope($text, $towns);
+    $trust = ($feed['trust'] ?? '') === 'official' ? 'official' : 'news';
     $notify = $auto && $scope !== 'national' ? 1 : 0;
-    $db->prepare('INSERT INTO reports (slug, title, title_norm, summary, facts, pub_date, category, trust, alert, scope,
-        municipalities, source_name, source_url, url_hash, state, pub_seq, serious, notify, origin, created_at)
-        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)')->execute([
+    $alert = $auto ? bhw_alert_level($text, $trust, $scope) : null;
+    $alertNote = $alert === null ? null : ($trust === 'official' ? 'Reported by an official source.' : 'From a news report. Health officials have not confirmed this here.');
+    $tone = bhw_tone($text);
+    // No pictures on stories about deaths or outbreaks, which could be graphic or show victims.
+    $image = null;
+    if (!$serious) {
+        $image = bhw_clean_image($it['image'] ?? null);
+        if ($image === null && !empty(bhw_config()['fetch_images'])) {
+            $image = bhw_page_image($it['url']);
+        }
+    }
+    $db->prepare('INSERT INTO reports (slug, title, title_norm, summary, facts, pub_date, category, trust, alert, alert_note, scope,
+        municipalities, source_name, source_url, url_hash, state, pub_seq, image_url, tone, serious, notify, origin, created_at)
+        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)')->execute([
         bhw_slug($title, $hash), mb_substr($title, 0, 400, 'UTF-8'), mb_substr($norm, 0, 400, 'UTF-8'),
-        $summary !== '' ? $summary : $title, '[]', $date, $category, ($feed['trust'] ?? '') === 'official' ? 'official' : 'news', null, $scope,
-        json_encode($towns, JSON_UNESCAPED_UNICODE), $sourceName, $it['url'], $hash, $state, $hold ? 0 : bhw_next_pub_seq($db), $serious ? 1 : 0, $notify,
+        $summary !== '' ? $summary : $title, '[]', $date, $category, $trust, $alert, $alertNote, $scope,
+        json_encode($towns, JSON_UNESCAPED_UNICODE), $sourceName, $it['url'], $hash, $state, $hold ? 0 : bhw_next_pub_seq($db), $image, $tone, $serious ? 1 : 0, $notify,
         'feed', date('c'),
     ]);
     return $hold ? 'stored_pending' : 'stored_published';

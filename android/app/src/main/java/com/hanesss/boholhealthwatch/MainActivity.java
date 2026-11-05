@@ -10,14 +10,18 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import androidx.core.app.NotificationManagerCompat;
+
 public class MainActivity extends Activity {
     static final String EXTRA_REPORT = "report";
+    private static final String KEY_ASKED = "asked_notifications";
     private static final String HOME = "file:///android_asset/www/index.html";
     private WebView web;
 
@@ -53,7 +57,7 @@ public class MainActivity extends Activity {
                 return true;
             }
         });
-        web.addJavascriptInterface(new Bridge(getApplicationContext()), "BHWNative");
+        web.addJavascriptInterface(new Bridge(this), "BHWNative");
 
         if (savedInstanceState != null) {
             web.restoreState(savedInstanceState);
@@ -63,9 +67,35 @@ public class MainActivity extends Activity {
 
         if (Build.VERSION.SDK_INT >= 33
                 && checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(new String[]{Manifest.permission.POST_NOTIFICATIONS}, 1);
+            askForNotifications();
         }
         AlertWorker.schedule(this);
+        AlertWorker.checkNow(this);
+    }
+
+    private void askForNotifications() {
+        AlertWorker.prefs(this).edit().putBoolean(KEY_ASKED, true).apply();
+        requestPermissions(new String[]{Manifest.permission.POST_NOTIFICATIONS}, 1);
+    }
+
+    /** Asks Android when it can still show the prompt, otherwise opens this app's notification settings. */
+    void turnOnNotifications() {
+        boolean canPrompt = Build.VERSION.SDK_INT >= 33
+                && checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
+                && (!AlertWorker.prefs(this).getBoolean(KEY_ASKED, false)
+                || shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS));
+        if (canPrompt) {
+            askForNotifications();
+        } else {
+            startActivity(new Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS)
+                    .putExtra(Settings.EXTRA_APP_PACKAGE, getPackageName()));
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        web.evaluateJavascript("window.bhwNotifyChanged&&window.bhwNotifyChanged()", null);
     }
 
     private String urlFor(Intent intent) {
@@ -86,7 +116,7 @@ public class MainActivity extends Activity {
     protected void onResume() {
         super.onResume();
         // Show the latest news whenever the app comes back to the screen.
-        web.evaluateJavascript("window.bhwRefresh&&window.bhwRefresh()", null);
+        web.evaluateJavascript("window.bhwRefresh&&window.bhwRefresh();window.bhwNotifyChanged&&window.bhwNotifyChanged()", null);
     }
 
     @Override
@@ -107,10 +137,27 @@ public class MainActivity extends Activity {
 
     /** Methods the page calls as window.BHWNative. */
     static final class Bridge {
+        private final MainActivity activity;
         private final Context context;
 
-        Bridge(Context context) {
-            this.context = context;
+        Bridge(MainActivity activity) {
+            this.activity = activity;
+            this.context = activity.getApplicationContext();
+        }
+
+        @JavascriptInterface
+        public String getNotificationStatus() {
+            return NotificationManagerCompat.from(context).areNotificationsEnabled() ? "on" : "off";
+        }
+
+        @JavascriptInterface
+        public void requestNotifications() {
+            activity.runOnUiThread(activity::turnOnNotifications);
+        }
+
+        @JavascriptInterface
+        public void sendTestNotification() {
+            AlertWorker.postTest(context);
         }
 
         @JavascriptInterface
