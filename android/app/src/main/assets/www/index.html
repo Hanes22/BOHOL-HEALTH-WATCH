@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0a56b0">
+<title>Bohol Health Watch</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Barlow+Semi+Condensed:wght@500;600;700&display=swap">
+<style>
+/* Layout: a one-column public bulletin. A solid blue town masthead, then ruled lists instead of cards, with status shown as stamps. */
+:root{
+  --bg:#ffffff;--surface:#f1f6fc;--ink:#0d2238;--muted:#50657b;--line:#d5e0ec;
+  --blue:#0a56b0;--blue-ink:#ffffff;--blue-soft:#dcebfb;--link:#0a56b0;
+  --sea:#e2eefa;--land:#ffffff;--land-line:#9db8d4;
+  --red:#b3261e;--red-soft:#fbe7e5;--amber:#8a5a00;--amber-soft:#fbf0d5;--grey:#5a6b7c;--grey-soft:#e9eef3;--green:#17694a;--green-soft:#dff3ea;
+  --display:"Barlow Semi Condensed","Arial Narrow",Arial,sans-serif;
+  --body:"Atkinson Hyperlegible",Verdana,"Segoe UI",Roboto,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0c1825;--surface:#14263a;--ink:#e8f0f8;--muted:#a3b6c9;--line:#27405a;
+  --blue:#0f4a93;--blue-ink:#ffffff;--blue-soft:#17365a;--link:#8cc2ff;
+  --sea:#102235;--land:#1d3650;--land-line:#4a6c8e;
+  --red:#ffb4ab;--red-soft:#4a1d1a;--amber:#f2c76e;--amber-soft:#3e2f0d;--grey:#b4c3d1;--grey-soft:#253645;--green:#86dcb7;--green-soft:#123a2b;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0c1825;--surface:#14263a;--ink:#e8f0f8;--muted:#a3b6c9;--line:#27405a;
+  --blue:#0f4a93;--blue-ink:#ffffff;--blue-soft:#17365a;--link:#8cc2ff;
+  --sea:#102235;--land:#1d3650;--land-line:#4a6c8e;
+  --red:#ffb4ab;--red-soft:#4a1d1a;--amber:#f2c76e;--amber-soft:#3e2f0d;--grey:#b4c3d1;--grey-soft:#253645;--green:#86dcb7;--green-soft:#123a2b;
+  color-scheme:dark}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--bg);color:var(--ink);font:400 16px/1.45 var(--body);margin:0}
+#app{max-width:520px;margin:0 auto;min-height:100vh;padding-bottom:calc(76px + env(safe-area-inset-bottom,0px))}
+.gutter{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance}
+a{color:var(--link)}
+button,select,input{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--link);outline-offset:2px}
+.masthead{background:var(--blue);color:var(--blue-ink);padding-block:14px 18px}
+.brand{font:600 13px/1 var(--display);letter-spacing:.09em;text-transform:uppercase;opacity:.88}
+.town-btn{appearance:none;background:none;border:0;padding:6px 0 0;margin:0;color:inherit;display:flex;align-items:center;gap:8px;text-align:left;min-height:44px}
+.town-btn b{font:700 34px/1.05 var(--display)}
+.town-btn svg{flex:none}
+.brief{margin:8px 0 0;font-size:16px}
+.brief strong{font-weight:700}
+.brief-link{appearance:none;display:inline-flex;align-items:center;min-height:44px;margin-top:6px;padding:0 14px;background:var(--bg);color:var(--ink);border:0;border-radius:6px;font-weight:700}
+.page-head{padding-block:18px 8px}
+.page-head h1{font-size:30px;line-height:1.1;font-weight:700}
+.page-head p{margin:4px 0 0;color:var(--muted)}
+.freshness{display:flex;gap:8px;align-items:flex-start;padding-block:10px;background:var(--surface);color:var(--muted);font-size:14px;border-bottom:1px solid var(--line)}
+.freshness.stale{background:var(--amber-soft);color:var(--amber)}
+.section-title{font:700 14px/1 var(--display);letter-spacing:.07em;text-transform:uppercase;color:var(--muted);padding-block:20px 8px}
+.chips{display:flex;gap:8px;overflow-x:auto;padding-block:12px 4px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{appearance:none;flex:none;min-height:40px;padding:0 14px;border:1px solid var(--line);border-radius:20px;background:var(--bg);color:var(--ink);font-size:15px}
+.chip[aria-pressed="true"]{background:var(--blue);border-color:var(--blue);color:var(--blue-ink);font-weight:700}
+.search{width:100%;min-height:44px;padding:0 12px;border:1px solid var(--line);border-radius:6px;background:var(--bg);margin-top:12px}
+.list{list-style:none;margin:0;padding:0}
+.row{appearance:none;display:block;width:100%;text-align:left;background:none;border:0;border-bottom:1px solid var(--line);padding-block:14px}
+.row:active{background:var(--surface)}
+.row h3{font-size:20px;line-height:1.18;font-weight:600;margin-top:6px}
+.row p{margin:6px 0 0;color:var(--muted);font-size:15px}
+.meta{display:flex;flex-wrap:wrap;align-items:center;gap:6px;font-size:13px;color:var(--muted)}
+.stamp{display:inline-flex;align-items:center;min-height:22px;padding:0 7px;border-radius:3px;font:700 12px/1 var(--display);letter-spacing:.05em;text-transform:uppercase}
+.s-active{background:var(--red-soft);color:var(--red)}
+.s-watch,.s-unknown{background:var(--amber-soft);color:var(--amber)}
+.s-ended{background:var(--grey-soft);color:var(--grey)}
+.s-official{background:var(--blue-soft);color:var(--link)}
+.s-news{background:var(--grey-soft);color:var(--grey)}
+.here{font-size:14px;font-weight:700;color:var(--ink);margin-top:6px}
+.empty{padding-block:28px;color:var(--muted)}
+.nav{position:fixed;left:0;right:0;bottom:0;z-index:5;background:var(--bg);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px);padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inset-right,0px)}
+.nav-in{max-width:520px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr)}
+.nav button{appearance:none;background:none;border:0;padding:0;white-space:nowrap;min-height:62px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:12px;color:var(--muted);position:relative}
+.nav button[aria-current="page"]{color:var(--link);font-weight:700}
+.badge{position:absolute;top:7px;left:calc(50% + 7px);min-width:18px;height:18px;border-radius:9px;background:#b3261e;color:#fff;font-size:11px;font-weight:700;display:grid;place-items:center;padding:0 4px}
+.map-wrap{background:var(--sea);border-block:1px solid var(--line)}
+.map-wrap svg{display:block;width:100%;height:auto;touch-action:manipulation}
+.land{fill:var(--land);stroke:var(--land-line);stroke-width:1.2}
+.town{fill:var(--land-line);cursor:pointer}
+.town.has{fill:var(--link)}
+.town.sel{fill:var(--red);stroke:var(--bg);stroke-width:2}
+.map-label{font:600 11px var(--body);fill:var(--ink);paint-order:stroke;stroke:var(--land);stroke-width:3px;pointer-events:none}
+.map-note{font-size:13px;color:var(--muted);padding-block:8px 0;margin:0}
+.field{display:block;padding-block:12px;border-bottom:1px solid var(--line)}
+.field label,.field-label{display:block;font-weight:700;margin-bottom:6px}
+.field select{width:100%;min-height:46px;padding:0 10px;border:1px solid var(--line);border-radius:6px;background:var(--bg)}
+.toggle{display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:60px;padding-block:8px;border-bottom:1px solid var(--line)}
+.toggle span{min-width:0}
+.toggle small{display:block;color:var(--muted);font-size:14px}
+.toggle input{flex:none;width:24px;height:24px;accent-color:var(--blue)}
+.note{padding:12px;margin-block:14px;background:var(--surface);border-radius:6px;font-size:15px}
+.tip{border-bottom:1px solid var(--line)}
+.tip summary{list-style:none;display:flex;align-items:center;justify-content:space-between;min-height:58px;font:600 22px/1.1 var(--display);cursor:pointer}
+.tip summary::-webkit-details-marker{display:none}
+.tip summary::after{content:"+";font-size:26px;color:var(--muted)}
+.tip[open] summary::after{content:"\2212"}
+.tip-body{padding-bottom:18px}
+.tip-body>p{margin:0 0 12px}
+.urgent{background:var(--red-soft);color:var(--ink);padding:12px;border-radius:6px;margin-bottom:14px}
+.urgent h4{margin:0 0 6px;color:var(--red);font:700 18px/1.15 var(--display)}
+.tip-body h4{font:700 17px/1.2 var(--display);margin:14px 0 4px}
+.tip-body ul{margin:0;padding-left:20px}
+.tip-body li{margin-block:3px}
+.sources{font-size:14px;color:var(--muted);margin-top:14px}
+.contact{padding-block:14px}
+.contact h2{font-size:22px;font-weight:600}
+.contact p{margin:6px 0 0}
+.mono{font-variant-numeric:tabular-nums;user-select:all}
+#detail:focus{outline:none}
+#detail{position:fixed;inset:0;z-index:20;background:var(--bg);overflow-y:auto;padding-top:env(safe-area-inset-top,0px);padding-bottom:calc(24px + env(safe-area-inset-bottom,0px))}
+.detail-in{max-width:520px;margin:0 auto}
+.back{appearance:none;background:none;border:0;min-height:48px;padding:0;color:var(--link);font-weight:700;display:flex;align-items:center;gap:4px}
+#detail h1{font-size:30px;line-height:1.12;font-weight:700;margin-top:10px}
+.lede{font-size:18px;margin:12px 0}
+.status-note{padding:10px 12px;border-radius:6px;margin-block:12px;font-size:15px}
+#detail ul{padding-left:20px;margin:0}
+#detail li{margin-block:7px}
+.source-btn{display:flex;align-items:center;justify-content:center;min-height:50px;margin-top:18px;background:var(--blue);color:var(--blue-ink);text-decoration:none;font-weight:700;border-radius:6px;text-align:center;padding:6px 12px}
+.disclaimer{font-size:14px;color:var(--muted);margin-top:14px}
+dialog{border:0;border-radius:10px;padding:0;background:var(--bg);color:var(--ink);width:min(92vw,440px);max-height:80vh}
+dialog::backdrop{background:rgba(5,20,35,.55)}
+.dlg-head{position:sticky;top:0;background:var(--bg);padding:14px 16px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}
+.dlg-head h2{font-size:22px;font-weight:700}
+.dlg-head button{appearance:none;background:none;border:0;min-height:44px;color:var(--link);font-weight:700}
+.opt{appearance:none;display:block;width:100%;text-align:left;background:none;border:0;border-bottom:1px solid var(--line);min-height:48px;padding:0 16px}
+.opt[aria-checked="true"]{font-weight:700;color:var(--link)}
+@media (prefers-reduced-motion:no-preference){.row,.chip{transition:background-color .12s}}
+</style>
+</head><body>
+
+<div id="app"></div>
+<div id="detail" tabindex="-1" hidden></div>
+<nav class="nav" aria-label="Main"><div class="nav-in" id="nav"></div></nav>
+<dialog id="townDialog" aria-label="Choose your town"></dialog>
+
+<script id="seed" type="application/json">{"generated":"2026-11-05","items":[{"id":"snakebite-inabanga","title":"Child dies after suspected snakebite in Inabanga","date":"2026-11-05","category":"bites","trust":"news","alert":null,"scope":"municipal","municipalities":["Inabanga"],"summary":"A 7-year-old girl reportedly died after a suspected cobra bite in Barangay Ubojan on the evening of 4 November.","facts":["The bite reportedly happened shortly after 6 p.m. near her grandmother's house.","She was taken to Clarin Community Hospital and declared dead on arrival.","Details come from initial information. The report does not name an official source."],"source":{"name":"Bohol Island News","url":"https://boholislandnews.com/2026/11/05/7-year-old-girl-dies-after-suspected-snakebite-in-inabanga/"}},{"id":"flu-surge-oct","title":"Flu-like illness up 31% nationwide, with Central Visayas among the sharpest rises","date":"2026-11-05","category":"respiratory","trust":"official","alert":"watch","alertNote":"Regional figure. The report does not mention Bohol.","scope":"region","municipalities":[],"summary":"DOH counted 15,042 influenza-like illness cases nationwide from 1 to 14 October, up from 11,517 in the previous two weeks.","facts":["Central Visayas is one of three regions with the highest percentage increases.","Dengue nationwide: 23,842 cases from 1 to 14 October, up 6% from the previous two weeks.","Leptospirosis nationwide: 554 cases from 1 to 14 October, down 54% from the previous two weeks."],"source":{"name":"Daily Tribune, citing DOH","url":"https://tribune.net.ph/2026/11/04/doh-logs-31-flu-like-illnesses-surge"}},{"id":"mercury-creams","title":"FDA warns against three skin-lightening creams flagged for mercury","date":"2026-11-04","category":"products","trust":"official","alert":null,"scope":"national","municipalities":[],"summary":"FDA advisories warn consumers not to buy or use Biogold Papaya Whitening Beauty Cream with Honey, Biocos Beauty Cream 3-in-1 Pack and Arayna Papaya Glow Beauty Cream.","facts":["EcoWaste Coalition screening found mercury of about 13,310 to 16,930 ppm in the three products.","The products have no certificate of product notification, so selling them is illegal.","Children can be affected by mercury vapors and by sharing contaminated blankets, pillows and towels.","The advisories are national. The report names no Bohol sales or cases."],"source":{"name":"Bohol Island News","url":"https://boholislandnews.com/2026/11/04/ecowaste-coalition-praises-fda-warning-on-mercury-contaminated-skin-lighteners/"}},{"id":"tanocal-mission","title":"Free medical mission planned for Tagbilaran in February 2027","date":"2026-11-01","category":"services","trust":"news","alert":null,"scope":"municipal","municipalities":["Tagbilaran City"],"summary":"The Tagbilaran Association of Northern California plans a mission with US-based doctors and expects about 1,500 patients.","facts":["It will include dental care and free medicine, reading eyeglasses, and canes for seniors.","The venue is not final. Immaculate Heart of Mary Seminary in Taloto and Gallares Hospital are under consideration."],"source":{"name":"The Bohol Tribune","url":"https://theboholtribune.com/2026/11/01/local-news-109/"}},{"id":"code-white-kalagkalag","title":"Code White for health facilities over Kalagkalag has ended","date":"2026-10-28","category":"services","trust":"official","alert":"ended","alertNote":"Ran 31 October to 3 November 2026.","scope":"region","municipalities":[],"summary":"DOH-7 put Central Visayas health facilities on Code White for All Saints' and All Souls' Day. The Bohol Provincial Health Office said it would deploy personnel to strategic areas.","facts":["Government emergency rooms were told to stay ready for a possible patient surge.","DOH-7 advised avoiding unsafe water and questionable roadside food because of diarrhea risk."],"source":{"name":"SunStar Cebu","url":"https://www.sunstar.com.ph/cebu/doh-7-readies-medical-teams"}},{"id":"haze-alert","title":"DOH-7 put Central Visayas hospitals on heightened alert over haze","date":"2026-09-04","category":"air","trust":"official","alert":"unknown","alertNote":"We found no later update, so check whether this still applies.","scope":"region","municipalities":[],"summary":"Hospitals were told to prepare for a possible rise in respiratory illness. A draft circular was to be sent to the Bohol Provincial Health Office.","facts":["As of 3 September, officials had recorded no haze-linked respiratory illnesses.","Children under five, older adults and pregnant women were told to limit outdoor activities."],"source":{"name":"The Freeman","url":"https://www.philstar.com/the-freeman/cebu-news/2026/09/04/2553936/doh-7-braces-haze-related-illnesses-high-alert-central-visayas-"}},{"id":"prc-dengue-response","title":"Philippine Red Cross Bohol steps up dengue response","date":"2026-08-30","category":"dengue","trust":"news","alert":null,"scope":"province","municipalities":["Balilihan","Candijay","Talibon","Tagbilaran City","Ubay","Getafe","Tubigon"],"summary":"Volunteers are prioritizing Talibon, Tagbilaran City, Ubay, Getafe and Tubigon. Earlier drives ran in Balilihan and Candijay.","facts":["Initial activities reached at least 307 people.","19 Red Cross Youth school councils committed to awareness campaigns and clean-ups.","The chapter activated its blood donor network for a 7-month-old dengue patient, who was later discharged."],"source":{"name":"The Bohol Tribune","url":"https://theboholtribune.com/2026/08/30/prc-bohol-intensifies-dengue-response-as-province-records-1883-cases-21-deaths/"}},{"id":"dengue-outbreak","title":"Province-wide dengue outbreak declared in Bohol","date":"2026-08-28","category":"dengue","trust":"official","alert":"active","alertNote":"Declared 27 August 2026. We found no report that it has ended.","scope":"province","municipalities":["Talibon","Tagbilaran City","Ubay","Getafe","Tubigon"],"highlightNote":"named among the areas with a significant number of cases","summary":"Governor Aumentado issued the declaration by executive order after cases exceeded the epidemic threshold for three consecutive weeks.","facts":["1,883 cases and 21 deaths from 4 January to 22 August 2026. This is the latest Bohol count we could confirm.","Talibon, Tagbilaran City, Ubay, Getafe and Tubigon were named as areas with a significant number of cases.","City and municipal health offices and hospitals were ordered to set up Dengue Fast Lanes.","Households, schools and communities were told to join Search and Destroy activities, including the 4 o'clock habit."],"source":{"name":"Philippine Daily Inquirer","url":"https://newsinfo.inquirer.net/2294147/bohol-declares-province-wide-dengue-outbreak"}},{"id":"ligtas-tigdas","title":"Measles-rubella vaccination drive for Bohol and Cebu children has ended","date":"2026-08-12","category":"vaccination","trust":"official","alert":"ended","alertNote":"Ran 10 to 28 August 2026.","scope":"province","municipalities":[],"summary":"Ligtas Tigdas 2026 targeted at least 630,000 children aged 6 to 59 months across Cebu and Bohol.","facts":["Rural health units took part, and barangay health workers helped register eligible children.","The report gives no Bohol-specific sites or schedules."],"source":{"name":"The Manila Times","url":"https://www.manilatimes.net/2026/08/12/regions/cebu-bohol-launch-mass-immunization-program/2403166"}},{"id":"hiv-hotspots","title":"Report names the Bohol areas with the most new HIV cases","date":"2026-05-31","category":"hiv","trust":"news","alert":null,"scope":"province","municipalities":["Tagbilaran City","Panglao","Ubay","Tubigon","Talibon"],"summary":"Tagbilaran City, Panglao, Ubay, Tubigon and Talibon had the most new cases in Bohol from January to March 2025, the report says.","facts":["Bohol recorded 17 new cases from January to March 2025.","Tagbilaran City and Panglao have the HIV treatment centers offering antiretroviral therapy.","A health worker quoted in the report said HIV is manageable with proper medication."],"source":{"name":"The Bohol Tribune","url":"https://theboholtribune.com/2026/05/31/bohol-remains-among-phs-top-hiv-hotspots/"}},{"id":"flu-alert-jan","title":"DOH Bohol urged masks, handwashing and flu shots","date":"2026-01-12","category":"respiratory","trust":"official","alert":null,"scope":"province","municipalities":[],"summary":"DOH Bohol head Dr. Van Phillip Baton said flu and other respiratory infections remain among the province's top diseases to watch.","facts":["Children, older adults, immunocompromised people and pregnant women are the groups named as vulnerable.","People at risk of complications should see a healthcare professional right away."],"source":{"name":"PIA Bohol","url":"https://piaboholenglishnews.blogspot.com/2026/01/flu-alert-up-disinfect-get-vax-shots.html"}},{"id":"lepto-2025","title":"Leptospirosis cases rose sharply in Bohol after 2025 flooding","date":"2025-12-02","category":"leptospirosis","trust":"official","alert":null,"scope":"province","municipalities":[],"summary":"Bohol logged 80 cases and five confirmed deaths from January to 22 November 2025, up 142.4% from the same period a year earlier.","facts":["Provincial Health Officer Dr. Em-em Uy urged immediate consultation when symptoms appear.","Symptoms listed: fever, rashes, body pain, stomachache, vomiting and diarrhea."],"source":{"name":"Bohol Island News","url":"https://boholislandnews.com/2025/12/02/leptospirosis-cases-surge-in-bohol-following-widespread-flooding/"}},{"id":"purokalusugan","title":"Tagbilaran's PuroKalusugan brings free checkups to the purok","date":"2025-07-28","category":"services","trust":"official","alert":null,"scope":"municipal","municipalities":["Tagbilaran City"],"summary":"The city's community health program offers free consultations and medicines, blood sugar tests, infant vaccination and PhilHealth enrollment.","facts":["It started on 23 July 2025 at Purok 3, Barangay Dampas.","The report says it is expanding to other barangays but does not name them."],"source":{"name":"The Bohol Times","url":"https://theboholtimes.com/?p=15899"}}],"tips":[{"id":"dengue","title":"Dengue","lead":"Bohol declared a province-wide outbreak on 27 August 2026. Severe dengue symptoms often appear after the fever has gone away.","urgentTitle":"Go to a hospital now if you see","urgent":["Severe stomach pain","Vomiting that won't stop","Rapid breathing","Bleeding gums or nose","Blood in vomit or stool","Weakness, restlessness or extreme tiredness","Intense thirst","Pale, cold skin"],"sections":[{"title":"Common symptoms","items":["High fever","Severe headache","Pain behind the eyes","Muscle and joint pain","Nausea and vomiting","Swollen glands","Rash"]},{"title":"Medicine","items":["Paracetamol is used for pain.","Do not take ibuprofen or aspirin. They can increase the risk of bleeding.","Rest and drink plenty of fluids."]},{"title":"DOH 5S","items":["Search and destroy breeding sites with clear, stagnant water.","Self-protect with long sleeves, pants and repellent.","Support fogging only when cases cluster in an area.","Seek early consultation for fever and rashes.","Sustain hydration if you have been diagnosed."]},{"title":"At home","items":["Empty stagnant water from containers, gutters, tires and plant trays.","Cover, empty and clean water storage containers every week.","Mosquitoes bite during the day, so use a net for daytime sleep."]}],"sources":[{"name":"WHO dengue fact sheet","url":"https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue"},{"name":"PIA: DOH 5S","url":"https://mirror.pia.gov.ph/news/2023/06/30/doh-urges-public-to-practice-5s-vs-dengue"},{"name":"Sunday Punch","url":"https://sundaypunch.ph/bohol-declares-dengue-outbreak-after-21-deaths-nearly-1900-cases/"}]},{"id":"snakebite","title":"Snakebite","lead":"Treat every suspected bite as an emergency. Antivenom is the most effective treatment, and a hospital is where to get it.","urgentTitle":"Go to a hospital now","urgent":["After any suspected bite, even if the person feels fine","Even if no one saw the snake","Children should tell an adult straight away"],"sections":[],"sources":[{"name":"WHO on antivenom","url":"https://www.who.int/news-room/fact-sheets/detail/snakebite-envenoming"}]},{"id":"leptospirosis","title":"Leptospirosis","lead":"Floodwater can be contaminated by animal urine and waste.","urgentTitle":"See a doctor immediately if you have","urgent":["Fever","Rashes","Body pain","Stomachache","Vomiting","Diarrhea"],"sections":[{"title":"Prevention","items":["Avoid wading through floodwater.","Use protective gear when you can't avoid it.","Keep up good hygiene."]}],"sources":[{"name":"Bohol Island News, quoting the Provincial Health Officer","url":"https://boholislandnews.com/2025/12/02/leptospirosis-cases-surge-in-bohol-following-widespread-flooding/"}]},{"id":"flu","title":"Flu","lead":"Most people recover at home. Children, older adults, immunocompromised people and pregnant women are at higher risk.","urgentTitle":"See a health worker right away if","urgent":["You are at risk of complications"],"sections":[{"title":"Prevention","items":["Wear a facemask to protect people around you.","Wash hands often with soap and water, or use alcohol.","Eat well and stay hydrated.","Get a flu vaccine."]}],"sources":[{"name":"PIA Bohol, quoting DOH Bohol","url":"https://piaboholenglishnews.blogspot.com/2026/01/flu-alert-up-disinfect-get-vax-shots.html"}]},{"id":"haze","title":"Haze","lead":"Children under five, older adults and pregnant women should limit time outdoors.","sections":[{"title":"What to do","items":["Wear an N95 mask outdoors. Two snug surgical masks are the alternative.","Stay hydrated.","Don't smoke indoors or burn garbage.","If air quality reaches emergency level, stay inside with windows and doors closed, unless heat stress becomes a concern."]}],"sources":[{"name":"The Freeman, citing DOH-7","url":"https://www.philstar.com/the-freeman/cebu-news/2026/09/04/2553936/doh-7-braces-haze-related-illnesses-high-alert-central-visayas-"}]},{"id":"heat","title":"Heat","lead":"DOH-7 gave this advice during El Niño conditions.","sections":[{"title":"What to do","items":["Wear comfortable clothing and use a hat or umbrella.","Bring drinking water and stay in the shade.","Avoid long exposure from about 10 a.m. to noon.","Keep taking maintenance medicines for conditions such as hypertension."]}],"sources":[{"name":"SunStar Cebu, citing DOH-7","url":"https://www.sunstar.com.ph/cebu/doh-7-readies-medical-teams"}]}],"contact":{"name":"Bohol Provincial Health Office","phone":"(038) 411 0138","ext":"41107","email":"provincialhealthoffice@gmail.com","url":"https://pho.bohol.gov.ph/"}}</script>
+<script>
+"use strict";
+var TOWNS={"Alburquerque":[9.61,123.96],"Alicia":[9.90,124.44],"Anda":[9.75,124.57],"Antequera":[9.78,123.90],"Baclayon":[9.62,123.91],"Balilihan":[9.75,123.97],"Batuan":[9.78,124.14],"Bien Unido":[10.13,124.38],"Bilar":[9.71,124.11],"Buenavista":[10.08,124.11],"Calape":[9.89,123.88],"Candijay":[9.82,124.50],"Carmen":[9.82,124.20],"Catigbian":[9.83,124.00],"Clarin":[9.96,124.03],"Corella":[9.69,123.92],"Cortes":[9.70,123.88],"Dagohoy":[9.92,124.28],"Danao":[9.95,124.22],"Dauis":[9.625,123.86],"Dimiao":[9.61,124.16],"Duero":[9.71,124.40],"Garcia Hernandez":[9.62,124.29],"Getafe":[10.15,124.16],"Guindulman":[9.76,124.49],"Inabanga":[10.03,124.07],"Jagna":[9.65,124.37],"Lila":[9.59,124.10],"Loay":[9.60,124.01],"Loboc":[9.64,124.03],"Loon":[9.80,123.80],"Mabini":[9.86,124.52],"Maribojoc":[9.74,123.84],"Panglao":[9.58,123.75],"Pilar":[9.83,124.33],"Pres. Carlos P. Garcia":[10.12,124.53],"Sagbayan":[9.92,124.10],"San Isidro":[9.87,123.95],"San Miguel":[10.00,124.33],"Sevilla":[9.71,124.05],"Sierra Bullones":[9.81,124.29],"Sikatuna":[9.69,123.97],"Tagbilaran City":[9.65,123.85],"Talibon":[10.15,124.32],"Trinidad":[10.08,124.34],"Tubigon":[9.95,123.96],"Ubay":[10.06,124.47],"Valencia":[9.61,124.21]};
+var COAST=[[9.66,123.85],[9.74,123.825],[9.80,123.78],[9.86,123.81],[9.90,123.87],[9.955,123.95],[9.98,124.03],[10.05,124.06],[10.09,124.10],[10.17,124.16],[10.18,124.32],[10.14,124.39],[10.09,124.44],[10.06,124.50],[9.95,124.57],[9.86,124.56],[9.76,124.60],[9.72,124.50],[9.70,124.42],[9.64,124.37],[9.60,124.27],[9.585,124.15],[9.575,124.08],[9.585,124.00],[9.60,123.93],[9.63,123.885]];
+var PANGLAO=[[9.645,123.84],[9.625,123.875],[9.60,123.855],[9.56,123.77],[9.545,123.73],[9.575,123.72],[9.61,123.78]];
+var CPG=[[10.145,124.51],[10.14,124.55],[10.10,124.555],[10.095,124.515]];
+var CATS={dengue:"Dengue",respiratory:"Flu and respiratory",leptospirosis:"Leptospirosis",vaccination:"Vaccination",bites:"Bites",air:"Air quality",products:"Product safety",services:"Health services",hiv:"HIV",other:"Other health"};
+var SCOPE={province:"All Bohol",region:"Central Visayas",national:"Nationwide"};
+var ALERT={active:"Active",watch:"Watch",unknown:"Check status",ended:"Ended"};
+var ICONS={
+ home:'<path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>',
+ alerts:'<path d="M12 3a6 6 0 0 0-6 6c0 6-2.5 7.5-2.5 7.5h17S18 15 18 9a6 6 0 0 0-6-6zM10 20a2 2 0 0 0 4 0"/>',
+ map:'<path d="M9 4L3 6.5v14L9 18l6 2.5 6-2.5V4l-6 2.5zM9 4v14M15 6.5v14"/>',
+ tips:'<path d="M12 3v18M3 12h18"/>',
+ profile:'<circle cx="12" cy="8" r="4"/><path d="M4 21c1-4.5 4-6.5 8-6.5s7 2 8 6.5"/>'
+};
+var TABS=[["home","Home"],["alerts","Alerts"],["map","Map"],["tips","Health Tips"],["profile","Profile"]];
+var data=JSON.parse(document.getElementById("seed").textContent);
+var live=false;
+var native_=window.BHWNative||null;
+var API=(native_&&native_.getApiBase&&native_.getApiBase())||window.BHW_API||"";
+var S={tab:"home",cat:"all",q:"",mapTown:null,prefs:{town:"",local:true,province:true,cats:Object.keys(CATS)}};
+
+function loadPrefs(){try{var p=JSON.parse(localStorage.getItem("bhw.prefs")||"null");if(p&&typeof p==="object"){for(var k in S.prefs)if(k in p)S.prefs[k]=p[k]}}catch(e){}
+  if(S.prefs.town&&!TOWNS[S.prefs.town])S.prefs.town="";}
+function savePrefs(){try{localStorage.setItem("bhw.prefs",JSON.stringify(S.prefs))}catch(e){}
+  if(native_&&native_.setPrefs){try{native_.setPrefs(JSON.stringify(S.prefs))}catch(e){}}}
+function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
+function safeUrl(u){return /^https?:\/\//i.test(String(u||""))?String(u):"#"}
+function day(d){return new Date(String(d).slice(0,10)+"T00:00:00Z")}
+function fmt(d){return day(d).toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric",timeZone:"UTC"})}
+function items(){return data.items.slice().sort(function(a,b){return String(b.date).localeCompare(String(a.date))})}
+function appliesTo(it,town){return !town||it.scope!=="municipal"||(it.municipalities||[]).indexOf(town)>=0}
+function named(it,town){return !!town&&(it.municipalities||[]).indexOf(town)>=0}
+function inTown(town){return items().filter(function(it){return appliesTo(it,town)})}
+function scopeText(it){if(it.scope==="municipal")return (it.municipalities||[]).join(", ");return SCOPE[it.scope]||""}
+function stamps(it){var h="";if(it.alert)h+='<span class="stamp s-'+esc(it.alert)+'">'+esc(ALERT[it.alert]||it.alert)+'</span>';h+='<span class="stamp s-'+(it.trust==="official"?"official":"news")+'">'+(it.trust==="official"?"Official":"News report")+'</span>';return h}
+function row(it){var town=S.prefs.town;return '<li><button class="row gutter" data-open="'+esc(it.id)+'"><div class="meta">'+stamps(it)+'<span>'+esc(fmt(it.date))+'</span><span>'+esc(scopeText(it))+'</span></div><h3>'+esc(it.title)+'</h3><p>'+esc(it.summary)+'</p>'+(named(it,town)?'<div class="here">Names '+esc(town)+'</div>':'')+'</button></li>'}
+function freshness(){var gen=data.generated;var age=Math.floor((Date.now()-day(gen).getTime())/864e5);var stale=age>3;
+  var msg=live?"Live feed. Last updated "+fmt(gen)+".":"Reports checked up to "+fmt(gen)+". This copy does not update by itself.";
+  if(stale)msg="These reports are "+age+" days old. Check the sources for newer information.";
+  return '<div class="freshness gutter'+(stale?' stale':'')+'" role="status">'+esc(msg)+'</div>'}
+function cats(list){var seen={};list.forEach(function(i){seen[i.category]=1});return ["all"].concat(Object.keys(CATS).filter(function(c){return seen[c]}))}
+function chips(list){if(S.cat!=="all"&&!list.some(function(i){return i.category===S.cat}))S.cat="all";return '<div class="chips gutter" role="group" aria-label="Filter by topic">'+cats(list).map(function(c){return '<button class="chip" data-cat="'+c+'" aria-pressed="'+(S.cat===c)+'">'+esc(c==="all"?"All topics":CATS[c])+'</button>'}).join("")+'</div>'}
+
+function vHome(){var town=S.prefs.town;var list=inTown(town);var top=items().filter(function(i){return i.alert==="active"&&appliesTo(i,town)})[0];
+  var brief="";
+  if(top){brief='<p class="brief"><strong>'+esc(top.title)+'.</strong> '+esc(top.alertNote||"")+(named(top,town)?' '+esc(town)+' is '+esc(top.highlightNote||"named in this report")+'.':'')+'</p><button class="brief-link" data-open="'+esc(top.id)+'">Read this alert</button>'}
+  else brief='<p class="brief">No active alert in this copy of the reports.</p>';
+  var q=S.q.trim().toLowerCase();
+  var pool=q?items():list;
+  var shown=pool.filter(function(i){return (S.cat==="all"||i.category===S.cat)&&(!q||(i.title+" "+i.summary+" "+(i.municipalities||[]).join(" ")).toLowerCase().indexOf(q)>=0)});
+  return '<header class="masthead gutter"><div class="brand">Bohol Health Watch</div><button class="town-btn" data-town aria-label="Change town"><b>'+esc(town||"All Bohol")+'</b><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>'+brief+'</header>'+freshness()+
+  '<div class="gutter"><label for="q" hidden>Search reports</label><input id="q" class="search" type="search" placeholder="Search reports" value="'+esc(S.q)+'"></div>'+chips(list)+
+  '<div id="feed"><ul class="list">'+shown.map(row).join("")+'</ul>'+(shown.length?"":'<p class="empty gutter">No reports match. Try another topic or word.</p>')+'</div>'}
+function vAlerts(){var town=S.prefs.town;var all=inTown(town).filter(function(i){return i.alert});var cur=all.filter(function(i){return i.alert==="active"||i.alert==="watch"||i.alert==="unknown"});var old=all.filter(function(i){return i.alert==="ended"});
+  function alertRow(it){return '<li><button class="row gutter" data-open="'+esc(it.id)+'"><div class="meta">'+stamps(it)+'<span>'+esc(fmt(it.date))+'</span><span>'+esc(scopeText(it))+'</span></div><h3>'+esc(it.title)+'</h3><p>'+esc(it.alertNote||it.summary)+'</p></button></li>'}
+  return '<div class="page-head gutter"><h1>Alerts</h1><p>For '+esc(town||"all of Bohol")+', including province-wide and regional alerts.</p></div>'+freshness()+
+  '<h2 class="section-title gutter">Current</h2><ul class="list">'+cur.map(alertRow).join("")+'</ul>'+(cur.length?"":'<p class="empty gutter">No current alerts.</p>')+
+  '<h2 class="section-title gutter">Ended</h2><ul class="list">'+old.map(alertRow).join("")+'</ul>'}
+function proj(p){return [((p[1]-123.68)*398).toFixed(1),((10.22-p[0])*392).toFixed(1)]}
+function smooth(pts){var P=pts.map(function(p){return proj(p).map(Number)}),n=P.length,d="M"+P[0][0]+" "+P[0][1];for(var i=0;i<n;i++){var a=P[(i-1+n)%n],b=P[i],c=P[(i+1)%n],e=P[(i+2)%n];d+="C"+(b[0]+(c[0]-a[0])/6).toFixed(1)+" "+(b[1]+(c[1]-a[1])/6).toFixed(1)+" "+(c[0]-(e[0]-b[0])/6).toFixed(1)+" "+(c[1]-(e[1]-b[1])/6).toFixed(1)+" "+c[0]+" "+c[1]}return d+"Z"}
+function vMap(){var sel=S.mapTown||S.prefs.town||"";var counts={};items().forEach(function(i){(i.municipalities||[]).forEach(function(t){counts[t]=(counts[t]||0)+1})});
+  var dots=Object.keys(TOWNS).map(function(t){var p=proj(TOWNS[t]);var cl="town"+(counts[t]?" has":"")+(t===sel?" sel":"");var r=counts[t]?6:3.5;return '<g data-pick="'+esc(t)+'" role="button" tabindex="0" aria-label="'+esc(t)+', '+(counts[t]||0)+' local reports"><circle cx="'+p[0]+'" cy="'+p[1]+'" r="13" fill="transparent"/><circle class="'+cl+'" cx="'+p[0]+'" cy="'+p[1]+'" r="'+(t===sel?8:r)+'"/></g>'}).join("");
+  var labels=Object.keys(counts).concat(sel&&!counts[sel]?[sel]:[]).map(function(t){var p=proj(TOWNS[t]);var right=TOWNS[t][1]<124.4&&t!=="Tubigon";var name=t==="Tagbilaran City"?"Tagbilaran":t;return '<text class="map-label" x="'+(Number(p[0])+(right?9:-9))+'" y="'+(Number(p[1])+4)+'" text-anchor="'+(right?"start":"end")+'">'+esc(name)+'</text>'}).join("");
+  var local=sel?items().filter(function(i){return named(i,sel)}):[];var wide=items().filter(function(i){return i.alert==="active"&&i.scope==="province"});
+  var opts='<option value="">Choose a town</option>'+Object.keys(TOWNS).map(function(t){return '<option'+(t===sel?' selected':'')+' value="'+esc(t)+'">'+esc(t)+'</option>'}).join("");
+  return '<div class="page-head gutter"><h1>Health reports by town</h1><p>Blue dots are towns named in a report. This counts reports, not cases.</p></div>'+
+  '<div class="map-wrap"><svg viewBox="0 0 400 275" role="group" aria-label="Schematic map of Bohol"><path class="land" d="'+smooth(COAST)+'"/><path class="land" d="'+smooth(PANGLAO)+'"/><path class="land" d="'+smooth(CPG)+'"/>'+dots+labels+'</svg></div>'+
+  '<p class="map-note gutter">Schematic map. Town positions are approximate.</p><div class="gutter field"><label for="mapTown">Town</label><select id="mapTown">'+opts+'</select></div>'+
+  (sel?'<h2 class="section-title gutter">Reports naming '+esc(sel)+'</h2><ul class="list">'+local.map(row).join("")+'</ul>'+(local.length?"":'<p class="empty gutter">No report in this copy names '+esc(sel)+'. That does not mean there are no cases there.</p>'):"")+
+  '<h2 class="section-title gutter">Province-wide alerts</h2><ul class="list">'+wide.map(row).join("")+'</ul>'}
+function vTips(){return '<div class="page-head gutter"><h1>Health Tips</h1><p>Prevention and when to get care. This is general information, so ask a health worker about your own situation.</p></div>'+
+  data.tips.map(function(t,i){return '<details class="tip gutter"'+(i===0?" open":"")+'><summary>'+esc(t.title)+'</summary><div class="tip-body"><p>'+esc(t.lead)+'</p>'+
+   (t.urgent?'<div class="urgent"><h4>'+esc(t.urgentTitle)+'</h4><ul>'+t.urgent.map(function(u){return '<li>'+esc(u)+'</li>'}).join("")+'</ul></div>':"")+
+   (t.sections||[]).map(function(s){return '<h4>'+esc(s.title)+'</h4><ul>'+s.items.map(function(x){return '<li>'+esc(x)+'</li>'}).join("")+'</ul>'}).join("")+
+   '<p class="sources">Source: '+t.sources.map(function(s){return '<a href="'+esc(safeUrl(s.url))+'" target="_blank" rel="noopener">'+esc(s.name)+'</a>'}).join(", ")+'</p></div></details>'}).join("")+contact()}
+function contact(){var c=data.contact;return '<section class="contact gutter"><h2>'+esc(c.name)+'</h2><p>Phone <span class="mono">'+esc(c.phone)+'</span>, local <span class="mono">'+esc(c.ext)+'</span></p><p><a href="'+esc(safeUrl(c.url))+'" target="_blank" rel="noopener">Provincial Health Office website</a></p></section>'}
+function vProfile(){var p=S.prefs;var opts='<option value="">All Bohol</option>'+Object.keys(TOWNS).map(function(t){return '<option'+(t===p.town?' selected':'')+' value="'+esc(t)+'">'+esc(t)+'</option>'}).join("");
+  var hasNative=!!native_;
+  return '<div class="page-head gutter"><h1>Profile</h1><p>No account needed. Your choices stay on this phone.</p></div><div class="gutter"><div class="field"><label for="pTown">My town</label><select id="pTown">'+opts+'</select></div>'+
+  '<h2 class="section-title" style="padding-left:0">Notifications</h2>'+(hasNative?'':'<div class="note">Notifications arrive through the Android app. In a web browser, these choices only save your preferences.</div>')+
+  '<label class="toggle"><span>My town<small>Reports that name '+esc(p.town||"your town")+'</small></span><input type="checkbox" id="nLocal"'+(p.local?" checked":"")+'></label>'+
+  '<label class="toggle"><span>Province-wide<small>Alerts for all of Bohol</small></span><input type="checkbox" id="nProv"'+(p.province?" checked":"")+'></label>'+
+  '<h2 class="section-title" style="padding-left:0">Topics</h2>'+Object.keys(CATS).map(function(c){return '<label class="toggle"><span>'+esc(CATS[c])+'</span><input type="checkbox" data-topic="'+c+'"'+(p.cats.indexOf(c)>=0?" checked":"")+'></label>'}).join("")+
+  '<h2 class="section-title" style="padding-left:0">About these reports</h2><p><strong>Official</strong> means a government health body or LGU made the statement. <strong>News report</strong> means a news outlet reported it and we have not confirmed it with an official source. Every report links to its source.</p><p>This app is not run by the DOH or the Provincial Government of Bohol. It does not replace medical advice.</p></div>'+contact()}
+function renderNav(){var cur=inTown(S.prefs.town).filter(function(i){return i.alert==="active"||i.alert==="watch"}).length;
+  document.getElementById("nav").innerHTML=TABS.map(function(t){return '<button data-tab="'+t[0]+'"'+(S.tab===t[0]?' aria-current="page"':'')+'><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true">'+ICONS[t[0]]+'</svg>'+t[1]+(t[0]==="alerts"&&cur?'<span class="badge" aria-label="'+cur+' current">'+cur+'</span>':'')+'</button>'}).join("")}
+function render(){document.getElementById("app").innerHTML={home:vHome,alerts:vAlerts,map:vMap,tips:vTips,profile:vProfile}[S.tab]();renderNav()}
+function openDetail(id){var it=data.items.filter(function(i){return String(i.id)===id})[0];var el=document.getElementById("detail");if(!it){el.hidden=true;return}
+  var noteCls=it.alert==="active"?"s-active":it.alert==="ended"?"s-ended":"s-watch";
+  el.innerHTML='<div class="detail-in gutter"><button class="back" data-back>&lsaquo; Back</button><div class="meta">'+stamps(it)+'<span>'+esc(CATS[it.category]||it.category)+'</span></div><h1>'+esc(it.title)+'</h1><div class="meta" style="margin-top:8px"><span>Published '+esc(fmt(it.date))+'</span><span>'+esc(scopeText(it))+'</span></div>'+
+  (it.alertNote?'<div class="status-note '+noteCls+'">'+esc(it.alertNote)+'</div>':'')+'<p class="lede">'+esc(it.summary)+'</p>'+(it.facts&&it.facts.length?'<ul>'+it.facts.map(function(f){return '<li>'+esc(f)+'</li>'}).join("")+'</ul>':'')+
+  '<a class="source-btn" href="'+esc(safeUrl(it.source.url))+'" target="_blank" rel="noopener">Read the original at '+esc(it.source.name)+'</a><p class="disclaimer">'+(it.trust==="official"?"This reports a statement from a government health body or LGU.":"This is a news report. We have not confirmed it with an official source.")+'</p></div>';
+  el.hidden=false;el.scrollTop=0;el.focus({preventScroll:true})}
+function townDialog(){var d=document.getElementById("townDialog");var cur=S.prefs.town;
+  d.innerHTML='<div class="dlg-head"><h2>Choose your town</h2><button data-closedlg>Close</button></div><div role="radiogroup"><button class="opt" role="radio" data-settown="" aria-checked="'+(!cur)+'">All Bohol</button>'+Object.keys(TOWNS).map(function(t){return '<button class="opt" role="radio" data-settown="'+esc(t)+'" aria-checked="'+(t===cur)+'">'+esc(t)+'</button>'}).join("")+'</div>';
+  if(d.showModal)d.showModal();else d.setAttribute("open","")}
+function setTown(t){S.prefs.town=t;savePrefs();render()}
+function route(){var h=location.hash.replace(/^#/,"");var el=document.getElementById("detail");if(h.indexOf("report-")===0){openDetail(h.slice(7));return}el.hidden=true;var valid=TABS.some(function(t){return t[0]===h});var next=valid?h:"home";if(next!==S.tab||!document.getElementById("app").firstChild){S.tab=next;render();window.scrollTo(0,0)}}
+document.addEventListener("click",function(e){var t=e.target.closest("[data-open],[data-tab],[data-cat],[data-town],[data-settown],[data-closedlg],[data-back],[data-pick]");if(!t)return;
+  if(t.hasAttribute("data-open")){location.hash="report-"+t.getAttribute("data-open");return}
+  if(t.hasAttribute("data-tab")){location.hash=t.getAttribute("data-tab");return}
+  if(t.hasAttribute("data-cat")){S.cat=t.getAttribute("data-cat");var x=window.scrollY;var cx=document.querySelector(".chips");var sl=cx?cx.scrollLeft:0;render();window.scrollTo(0,x);var c2=document.querySelector(".chips");if(c2)c2.scrollLeft=sl;return}
+  if(t.hasAttribute("data-town")){townDialog();return}
+  if(t.hasAttribute("data-settown")){document.getElementById("townDialog").close();setTown(t.getAttribute("data-settown"));return}
+  if(t.hasAttribute("data-closedlg")){document.getElementById("townDialog").close();return}
+  if(t.hasAttribute("data-back")){if(window.history.length>1&&document.referrer!==location.href){var before=location.hash;history.back();setTimeout(function(){if(location.hash===before)location.hash=S.tab},250)}else location.hash=S.tab;return}
+  if(t.hasAttribute("data-pick")){S.mapTown=t.getAttribute("data-pick");render();return}
+});
+document.addEventListener("keydown",function(e){if((e.key==="Enter"||e.key===" ")&&e.target.closest&&e.target.closest("[data-pick]")){e.preventDefault();S.mapTown=e.target.closest("[data-pick]").getAttribute("data-pick");render()}});
+document.addEventListener("input",function(e){if(e.target.id==="q"){S.q=e.target.value;var pos=e.target.selectionStart;render();var q=document.getElementById("q");q.focus();try{q.setSelectionRange(pos,pos)}catch(err){}}});
+document.addEventListener("change",function(e){var t=e.target;if(t.id==="mapTown"){S.mapTown=t.value;render()}else if(t.id==="pTown"){setTown(t.value)}else if(t.id==="nLocal"){S.prefs.local=t.checked;savePrefs()}else if(t.id==="nProv"){S.prefs.province=t.checked;savePrefs()}else if(t.hasAttribute&&t.hasAttribute("data-topic")){var c=t.getAttribute("data-topic");S.prefs.cats=S.prefs.cats.filter(function(x){return x!==c});if(t.checked)S.prefs.cats.push(c);savePrefs()}});
+window.addEventListener("hashchange",route);
+function refresh(){if(!API)return;fetch(API.replace(/\/$/,"")+"/feed.php?limit=100").then(function(r){if(!r.ok)throw new Error(r.status);return r.json()}).then(function(j){if(j&&Array.isArray(j.items)){data.items=j.items;data.generated=j.generated||data.generated;live=true;var keep=window.scrollY;render();window.scrollTo(0,keep);if(location.hash.indexOf("#report-")===0)route()}}).catch(function(){})}
+loadPrefs();savePrefs();
+S.tab=(function(){var h=location.hash.replace(/^#/,"");return TABS.some(function(t){return t[0]===h})?h:"home"})();
+render();route();refresh();
+</script>
+
+</body></html>

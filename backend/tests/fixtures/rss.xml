@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE foo [<!ENTITY xxe SYSTEM "file:///etc/passwd">]>
+<rss version="2.0"><channel><title>Fixture</title><link>https://example.com</link><description>Test feed using headlines seen in real Bohol feeds</description>
+<item><title>7-year-old girl dies after suspected snakebite in Inabanga</title><link>https://example.com/a</link><description><![CDATA[<p>A girl died near her grandmother's house.</p>]]></description><pubDate>Thu, 05 Nov 2026 04:04:06 +0000</pubDate></item>
+<item><title>BOHOL RETAINS UNESCO GLOBAL GEOPARK STATUS FOR ANOTHER FOUR YEARS</title><link>https://example.com/b</link><description>Good news for tourism.</description><pubDate>Thu, 05 Nov 2026 00:53:37 +0000</pubDate></item>
+<item><title>₱100,000 wallet goes missing at St. Joseph Cathedral; family appeals for return</title><link>https://example.com/c</link><description>Tagbilaran City.</description><pubDate>Thu, 05 Nov 2026 01:41:09 +0000</pubDate></item>
+<item><title>Free flu vaccination opens at Panglao rural health unit</title><link>https://example.com/d</link><description>Seniors may visit on weekdays.</description><pubDate>Wed, 04 Nov 2026 01:00:00 +0000</pubDate></item>
+<item><title>Free flu vaccination opens at the Panglao rural health unit!</title><link>https://other.example.com/e</link><description>Same story, another site.</description><pubDate>Wed, 04 Nov 2026 03:00:00 +0000</pubDate></item>
+<item><title>Free flu vaccination opens at Panglao rural health unit</title><link>https://example.com/d/</link><description>Same URL again.</description><pubDate>Wed, 04 Nov 2026 01:00:00 +0000</pubDate></item>
+<item><title>Dengue vaccine talks held in Carmen, Cebu</title><link>https://example.com/f</link><description>Officials met in Carmen, Cebu.</description><pubDate>Tue, 03 Nov 2026 01:00:00 +0000</pubDate></item>
+<item><title>Bad link dengue story</title><link>javascript:alert(1)</link><description>x</description><pubDate>Tue, 03 Nov 2026 01:00:00 +0000</pubDate></item>
+<item><title>Bohol health office lists dengue fast lanes</title><link>https://example.com/g</link><description>&lt;script&gt;alert(1)&lt;/script&gt;Health offices in the province are ready. &amp;xxe;</description><pubDate>Mon, 02 Nov 2026 01:00:00 +0000</pubDate></item>
+</channel></rss>
