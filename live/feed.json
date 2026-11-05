@@ -1,6 +1,6 @@
 {
     "generated": "2026-11-05",
-    "max_seq": 13,
+    "max_seq": 15,
     "metrics": {
         "dengue": {
             "cases": 1883,
@@ -47,6 +47,26 @@
     },
     "items": [
         {
+            "seq": 14,
+            "id": "7-year-old-girl-dies-after-suspected-snakebite-in-inabanga-0fa5b521",
+            "title": "7-year-old girl dies after suspected snakebite in Inabanga",
+            "date": "2026-11-05",
+            "category": "bites",
+            "trust": "news",
+            "alert": null,
+            "scope": "municipal",
+            "municipalities": [
+                "Inabanga"
+            ],
+            "summary": "A 7-year-old girl died after she was reportedly bitten by a snake near her grandmother’s house in Barangay Ubojan, Inabanga, Bohol, on Wednesday evening, Nov. 4.",
+            "facts": [],
+            "source": {
+                "name": "Bohol Island News",
+                "url": "https://boholislandnews.com/2026/11/05/7-year-old-girl-dies-after-suspected-snakebite-in-inabanga/"
+            },
+            "notify": true
+        },
+        {
             "seq": 2,
             "id": "flu-surge-oct",
             "title": "Flu-like illness up 31% nationwide, with Central Visayas among the sharpest rises",
@@ -90,6 +110,24 @@
             "source": {
                 "name": "Bohol Island News",
                 "url": "https://boholislandnews.com/2026/11/05/7-year-old-girl-dies-after-suspected-snakebite-in-inabanga/"
+            },
+            "notify": false
+        },
+        {
+            "seq": 15,
+            "id": "ecowaste-coalition-praises-fda-warning-on-mercury-contaminat-d7226a11",
+            "title": "EcoWaste Coalition praises FDA warning on mercury-contaminated skin lighteners",
+            "date": "2026-11-04",
+            "category": "products",
+            "trust": "news",
+            "alert": null,
+            "scope": "national",
+            "municipalities": [],
+            "summary": "The toxics watchdog group EcoWaste Coalition applauded the country’s Food and Drug Administration (FDA) for issuing advisories flagging three more Pakistan-made unauthorized skin lightening products, which may pose mercury exposure risks…",
+            "facts": [],
+            "source": {
+                "name": "Bohol Island News",
+                "url": "https://boholislandnews.com/2026/11/04/ecowaste-coalition-praises-fda-warning-on-mercury-contaminated-skin-lighteners/"
             },
             "notify": false
         },
