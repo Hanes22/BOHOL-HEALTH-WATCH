@@ -1,6 +1,6 @@
 {
     "generated": "2026-11-08",
-    "max_seq": 13,
+    "max_seq": 17,
     "metrics": {
         "dengue": {
             "cases": 1883,
@@ -46,6 +46,49 @@
         }
     },
     "items": [
+        {
+            "seq": 17,
+            "id": "town-news-maribojoc-559781b3",
+            "title": "TOWN NEWS-MARIBOJOC",
+            "date": "2026-11-08",
+            "category": "bites",
+            "trust": "news",
+            "alert": null,
+            "scope": "municipal",
+            "municipalities": [
+                "Maribojoc"
+            ],
+            "summary": "This Monday morning, November 9, the Maribojoc Animal Bite Treatment Center will open to bring anti-rabies services closer to residents... The post TOWN NEWS-MARIBOJOC appeared first on Bohol Tribune.",
+            "facts": [],
+            "source": {
+                "name": "The Bohol Tribune",
+                "url": "https://theboholtribune.com/2026/11/08/town-news-maribojoc-144/"
+            },
+            "notify": true,
+            "image": "https://i0.wp.com/theboholtribune.com/wp-content/uploads/2026/11/image-97.png?resize=296%2C373&ssl=1"
+        },
+        {
+            "seq": 16,
+            "id": "balilihan-health-facility-wins-regional-workplace-award-92832acc",
+            "title": "Balilihan health facility wins regional workplace award",
+            "date": "2026-11-08",
+            "category": "services",
+            "trust": "news",
+            "alert": null,
+            "scope": "municipal",
+            "municipalities": [
+                "Balilihan"
+            ],
+            "summary": "The Balilihan local government unit has been recognized by the Department of Health’s Central Visayas Center for Health Development for... The post Balilihan health facility wins regional workplace award appeared first on Bohol Tribune.",
+            "facts": [],
+            "source": {
+                "name": "The Bohol Tribune",
+                "url": "https://theboholtribune.com/2026/11/08/balilihan-health-facility-wins-regional-workplace-award/"
+            },
+            "notify": true,
+            "image": "https://theboholtribune.com/wp-content/uploads/2026/11/balilihan-front.png",
+            "tone": "good"
+        },
         {
             "seq": 2,
             "id": "flu-surge-oct",
