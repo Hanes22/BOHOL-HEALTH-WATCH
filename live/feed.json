@@ -1,6 +1,6 @@
 {
     "generated": "2026-11-11",
-    "max_seq": 17,
+    "max_seq": 18,
     "metrics": {
         "dengue": {
             "cases": 1883,
@@ -46,6 +46,24 @@
         }
     },
     "items": [
+        {
+            "seq": 18,
+            "id": "testing-post-4d5e550d",
+            "title": "testing post",
+            "date": "2026-11-09",
+            "category": "services",
+            "trust": "news",
+            "alert": null,
+            "scope": "national",
+            "municipalities": [],
+            "summary": "testing post",
+            "facts": [],
+            "source": {
+                "name": "BOHOL news",
+                "url": "https://www.facebook.com/122108275887537045/posts/122106063747537045"
+            },
+            "notify": false
+        },
         {
             "seq": 17,
             "id": "town-news-maribojoc-559781b3",
