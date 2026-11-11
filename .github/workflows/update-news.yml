@@ -1,20 +1,33 @@
 name: Update news
 
+# GitHub's `schedule` trigger is throttled on busy days and may fire only every few hours,
+# so it can't be the only thing keeping the feed fresh. Each run therefore collects every
+# ~5 minutes for about 50 minutes, then starts the next run itself (workflow_dispatch from
+# GITHUB_TOKEN is allowed and is not throttled). The cron below only restarts the chain if it ever stops.
 on:
   schedule:
-    - cron: "*/5 * * * *"
+    - cron: "7,37 * * * *"
   workflow_dispatch:
+    inputs:
+      chain:
+        description: "Set by the previous run. Leave as false when starting by hand."
+        required: false
+        default: "false"
 
 permissions:
   contents: write
+  actions: write
 
 concurrency:
   group: update-news
-  cancel-in-progress: false
+  # Starting a run by hand (Collect Page posts) replaces a running loop right away instead of
+  # waiting behind it. The automatic hand-over between loops never cancels anything.
+  cancel-in-progress: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.chain != 'true' }}
 
 jobs:
   update:
     runs-on: ubuntu-latest
+    timeout-minutes: 65
     steps:
       - uses: actions/checkout@v4
 
@@ -24,7 +37,7 @@ jobs:
           extensions: pdo_sqlite, curl, simplexml, mbstring
           coverage: none
 
-      - name: Collect news
+      - name: Collect news every 5 minutes
         env:
           BHW_CONFIG: backend/config.github.php
           FB_ACCESS_TOKEN: ${{ secrets.FB_ACCESS_TOKEN }}
@@ -32,17 +45,38 @@ jobs:
           FB_PAGE_NAME: ${{ vars.FB_PAGE_NAME }}
           FB_PAGE_TRUST: ${{ vars.FB_PAGE_TRUST }}
           TZ: Asia/Manila
-        run: php backend/bin/publish-static.php
-
-      - name: Publish if anything changed
         run: |
-          if [ -z "$(git status --porcelain live/feed.json)" ]; then
-            echo "No new reports."
-            exit 0
-          fi
           git config user.name "bohol-health-watch-bot"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add live/feed.json live/state.sqlite
-          git commit -m "Update news feed"
-          git pull --rebase origin main
-          git push
+          END=$(( $(date +%s) + 50 * 60 ))
+          rounds=0
+          failed=0
+          while :; do
+            rounds=$((rounds + 1))
+            # Start every round from the newest main, so edits to data/seed.json or the code apply at once.
+            git fetch --quiet origin main && git reset --quiet --hard origin/main
+            if ! php backend/bin/publish-static.php; then
+              failed=$((failed + 1))
+              echo "Round $rounds: every source failed."
+            fi
+            if [ -n "$(git status --porcelain live/feed.json)" ]; then
+              git add live/feed.json live/state.sqlite
+              git commit --quiet -m "Update news feed"
+              if ! { git pull --quiet --rebase origin main && git push --quiet origin HEAD:main; }; then
+                echo "Round $rounds: push failed. The next round collects again."
+                git rebase --abort 2>/dev/null || true
+              fi
+            else
+              echo "Round $rounds: no new reports."
+            fi
+            [ $(( $(date +%s) + 270 )) -lt "$END" ] || break
+            sleep 270
+          done
+          echo "Finished $rounds rounds, $failed with every source failing."
+          [ "$failed" -lt "$rounds" ]
+
+      - name: Start the next run
+        if: always() && !cancelled()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run update-news.yml --repo "${{ github.repository }}" --ref main -f chain=true
