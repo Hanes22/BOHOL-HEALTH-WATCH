@@ -89,7 +89,7 @@ function bhw_page_image(string $url): ?string
     return null;
 }
 
-function bhw_fetch(string $url): ?string
+function bhw_fetch(string $url, ?int &$httpStatus = null, bool $returnHttpErrorBody = false): ?string
 {
     $ch = curl_init($url);
     curl_setopt_array($ch, [
@@ -103,9 +103,10 @@ function bhw_fetch(string $url): ?string
         CURLOPT_USERAGENT => 'BoholHealthWatch/1.0 (RSS reader)',
     ]);
     $body = curl_exec($ch);
-    $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $code = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
     curl_close($ch);
-    return is_string($body) && $code >= 200 && $code < 300 ? $body : null;
+    $httpStatus = $code;
+    return is_string($body) && (($code >= 200 && $code < 300) || $returnHttpErrorBody) ? $body : null;
 }
 
 /** True when a similar headline was already stored within seven days of $date. */

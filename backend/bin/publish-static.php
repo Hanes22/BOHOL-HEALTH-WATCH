@@ -71,11 +71,15 @@ $fbToken = getenv('FB_ACCESS_TOKEN') ?: '';
 if ($fbToken !== '') {
     foreach (bhw_config()['facebook_pages'] ?? [] as $page) {
         $query = http_build_query(['fields' => 'message,created_time,permalink_url,full_picture', 'limit' => 10, 'access_token' => $fbToken]);
-        $body = bhw_fetch('https://graph.facebook.com/v26.0/' . rawurlencode($page['id']) . '/posts?' . $query);
+        $httpStatus = 0;
+        $body = bhw_fetch('https://graph.facebook.com/v26.0/' . rawurlencode($page['id']) . '/posts?' . $query, $httpStatus, true);
         $posts = $body === null ? null : json_decode($body, true);
         if (!is_array($posts) || !isset($posts['data'])) {
-            $err = is_array($posts) ? ($posts['error']['message'] ?? 'invalid response') : 'request failed';
-            echo "FAILED Facebook {$page['name']}: {$err}\n";
+            $graphError = is_array($posts) && is_array($posts['error'] ?? null) ? $posts['error'] : [];
+            $err = (string) ($graphError['message'] ?? 'invalid response');
+            $err = str_replace($fbToken, '[redacted]', $err);
+            $code = isset($graphError['code']) ? ' Graph error ' . (int) $graphError['code'] . '.' : '';
+            echo "FAILED Facebook {$page['name']}: HTTP {$httpStatus}.{$code} {$err}\n";
             continue;
         }
         $tally = [];
