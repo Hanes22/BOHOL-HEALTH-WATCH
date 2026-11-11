@@ -4,11 +4,14 @@ return [
     'dsn' => 'sqlite:' . dirname(__DIR__) . '/live/state.sqlite',
     'auto_publish' => true,
     'fetch_images' => true,
-    // Read only when the FB_ACCESS_TOKEN secret is set, which needs Meta's approval.
-    'facebook_pages' => [
-        ['name' => 'Department of Health Philippines', 'id' => 'OfficialDOHgov'],
-        ['name' => 'DOH Central Visayas', 'id' => '341360329665812'],
-    ],
+    // The user's BOHOL news Page. Override FB_PAGE_ID / FB_PAGE_NAME in Actions variables if needed.
+    // FB_PAGE_TRUST may be "official" only for a verified government health Page.
+    'facebook_pages' => [[
+        'name' => getenv('FB_PAGE_NAME') ?: 'BOHOL news',
+        'id' => getenv('FB_PAGE_ID') ?: '1448497761679246',
+        'trust' => getenv('FB_PAGE_TRUST') === 'official' ? 'official' : 'news',
+        'all_health' => true,
+    ]],
     'feeds' => [
         ['name' => 'Bohol Island News', 'url' => 'https://boholislandnews.com/feed/'],
         ['name' => 'The Bohol Tribune', 'url' => 'https://theboholtribune.com/feed/'],

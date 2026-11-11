@@ -79,6 +79,9 @@ jobs:
         env:
           BHW_CONFIG: backend/config.github.php
           FB_ACCESS_TOKEN: ${{ secrets.FB_ACCESS_TOKEN }}
+          FB_PAGE_ID: ${{ vars.FB_PAGE_ID }}
+          FB_PAGE_NAME: ${{ vars.FB_PAGE_NAME }}
+          FB_PAGE_TRUST: ${{ vars.FB_PAGE_TRUST }}
           TZ: Asia/Manila
         run: php backend/bin/publish-static.php
 

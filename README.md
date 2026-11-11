@@ -48,10 +48,13 @@ Stories from the feeds in `backend/config.github.php` publish without review, in
 - **Notifications:** stories naming Bohol or its towns can notify phones, subject to each person's Profile choices.
 
 ### Trusted Facebook pages
-Facebook posts can't be collected automatically without Meta's approval. Meta requires a verified business, App Review and the Page Public Content Access feature.
+The **Update news** workflow checks the configured Facebook Page every 15 minutes and adds new health posts to the same feed used by the mobile app. It needs a Meta app and a Page access token with permission to read posts from that Page. A Page you manage can be tested with your app role; using the integration for other users or public Pages may require Meta App Review and Page Public Content Access.
 
-- **Today:** the app links to the official pages. To put a post in the app and notify phones, open Actions > **Add a report** > Run workflow, and fill in the form.
-- **After Meta approves your app:** add the token as a repository secret named `FB_ACCESS_TOKEN`. "Update news" then reads the pages in `backend/config.github.php`, labeled Official. This code path has never run against Facebook, so expect to test it.
+1. The configured Page is **BOHOL news** (ID `1448497761679246`). In the GitHub repository, you can override its name with Actions variable `FB_PAGE_NAME`. You can optionally set `FB_PAGE_TRUST=official` only when it is an official government health Page; other Pages are labeled News report.
+2. Add the Page access token as an Actions secret named `FB_ACCESS_TOKEN`. Never commit or share the token in chat.
+3. Run **Actions > Update news > Run workflow**. Check its log for `Facebook <page>: {…}`. New health posts appear in the app feed; phones can notify based on each user's Profile choices.
+
+Set `FB_PAGE_ID` as an Actions variable to override the configured Page. Facebook posts from this configured health page are imported. Revoke and replace the token if it is exposed, and renew it if Meta expires it.
 
 ### Other ways to build
 `build-apk-windows.bat` or Android Studio also work, using the `android` folder.

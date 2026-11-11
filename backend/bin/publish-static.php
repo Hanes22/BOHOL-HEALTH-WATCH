@@ -64,15 +64,18 @@ foreach ($tried as $feed) {
     }
     echo "{$feed['name']}: ", json_encode($tally), "\n";
 }
-// Facebook posts, once Meta has approved this app. Without a token this does nothing.
+// Facebook Page posts, using a Page access token stored as a GitHub Actions secret.
+// Search for FB_ACCESS_TOKEN in GitHub Settings > Secrets and variables > Actions.
+// Placeholder only (do not put a real token in this public file): FB_ACCESS_TOKEN=YOUR_PAGE_ACCESS_TOKEN_HERE
 $fbToken = getenv('FB_ACCESS_TOKEN') ?: '';
 if ($fbToken !== '') {
     foreach (bhw_config()['facebook_pages'] ?? [] as $page) {
         $query = http_build_query(['fields' => 'message,created_time,permalink_url,full_picture', 'limit' => 10, 'access_token' => $fbToken]);
-        $body = bhw_fetch('https://graph.facebook.com/v21.0/' . rawurlencode($page['id']) . '/posts?' . $query);
+        $body = bhw_fetch('https://graph.facebook.com/v26.0/' . rawurlencode($page['id']) . '/posts?' . $query);
         $posts = $body === null ? null : json_decode($body, true);
         if (!is_array($posts) || !isset($posts['data'])) {
-            echo "FAILED Facebook {$page['name']}\n";
+            $err = is_array($posts) ? ($posts['error']['message'] ?? 'invalid response') : 'request failed';
+            echo "FAILED Facebook {$page['name']}: {$err}\n";
             continue;
         }
         $tally = [];
@@ -84,7 +87,10 @@ if ($fbToken !== '') {
             $r = bhw_ingest($db, [
                 'title' => bhw_excerpt($message, 110), 'url' => (string) ($post['permalink_url'] ?? ''), 'html' => $message,
                 'date' => (string) ($post['created_time'] ?? ''), 'image' => $post['full_picture'] ?? null,
-            ], $page['name'], ['trust' => 'official', 'all_health' => true]);
+            ], $page['name'], [
+                'trust' => ($page['trust'] ?? 'news') === 'official' ? 'official' : 'news',
+                'all_health' => !empty($page['all_health']),
+            ]);
             $tally[$r] = ($tally[$r] ?? 0) + 1;
         }
         echo "Facebook {$page['name']}: ", json_encode($tally), "\n";
