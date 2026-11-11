@@ -31,7 +31,7 @@ This repo must stay **public**, because the app reads its news from it.
 1. Push or upload this folder to `main`, including `.github`, `live` and `android/app/debug.keystore`.
 2. **Build APK** runs by itself. Each build is published at
    `https://github.com/Hanes22/BOHOL-HEALTH-WATCH/releases/latest/download/BoholHealthWatch.apk`
-3. **Update news** runs about every 5 minutes and writes `live/feed.json`. Start it once by hand from the Actions tab.
+3. **Update news** is scheduled about every 5 minutes and writes `live/feed.json`. You can also start it manually from the app's **Collect Page posts** link or from the Actions tab.
 4. If "Update news" can't push, set Settings > Actions > General > Workflow permissions to "Read and write".
 
 The app reads the feed when opened, when reopened, and about every minute while open. Android background checks run about every 15 minutes. GitHub may delay scheduled runs, so updates are not guaranteed to arrive on an exact minute.
@@ -48,11 +48,11 @@ Stories from the feeds in `backend/config.github.php` publish without review, in
 - **Notifications:** stories naming Bohol or its towns can notify phones, subject to each person's Profile choices.
 
 ### Trusted Facebook pages
-The **Update news** workflow checks the configured Facebook Page every 15 minutes and adds new health posts to the same feed used by the mobile app. It needs a Meta app and a Page access token with permission to read posts from that Page. A Page you manage can be tested with your app role; using the integration for other users or public Pages may require Meta App Review and Page Public Content Access.
+The **Update news** workflow checks the configured Facebook Page on scheduled runs (about every 5 minutes) and adds new health posts to the same feed used by the mobile app. The app's **Check feed** button only reloads the published feed; use **Collect Page posts** to start a fresh Facebook collection, then return and tap **Check feed**. It needs a Meta app and a Page access token with permission to read posts from that Page. A Page you manage can be tested with your app role; using the integration for other users or public Pages may require Meta App Review and Page Public Content Access.
 
 1. The configured Page is **BOHOL news** (ID `1448497761679246`). In the GitHub repository, you can override its name with Actions variable `FB_PAGE_NAME`. You can optionally set `FB_PAGE_TRUST=official` only when it is an official government health Page; other Pages are labeled News report.
 2. Add the Page access token as an Actions secret named `FB_ACCESS_TOKEN`. Never commit or share the token in chat.
-3. Run **Actions > Update news > Run workflow**. Check its log for `Facebook <page>: {…}`. New health posts appear in the app feed; phones can notify based on each user's Profile choices.
+3. Run **Actions > Update news > Run workflow**. Check its log for `Facebook <page>: {…}` or `FAILED Facebook`. The app's **Feed diagnostics** shows the last feed fetch, the Facebook collector result stored in that feed, and the number of Page posts currently shown. New health posts appear after the workflow finishes and you tap **Check feed**; phones can notify based on each user's Profile choices.
 
 Set `FB_PAGE_ID` as an Actions variable to override the configured Page. Facebook posts from this configured health page are imported. Revoke and replace the token if it is exposed, and renew it if Meta expires it.
 

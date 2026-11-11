@@ -48,6 +48,7 @@ foreach ($seed['items'] as $i) {
 }
 
 $ok = 0;
+$anySourceOk = false;
 $tried = bhw_config()['feeds'];
 foreach ($tried as $feed) {
     $xml = bhw_fetch($feed['url']);
@@ -57,6 +58,7 @@ foreach ($tried as $feed) {
         continue;
     }
     $ok++;
+    $anySourceOk = true;
     $tally = [];
     foreach ($items as $it) {
         $r = bhw_ingest($db, $it, $feed['name'], $feed);
@@ -68,6 +70,7 @@ foreach ($tried as $feed) {
 // Search for FB_ACCESS_TOKEN in GitHub Settings > Secrets and variables > Actions.
 // Placeholder only (do not put a real token in this public file): FB_ACCESS_TOKEN=YOUR_PAGE_ACCESS_TOKEN_HERE
 $fbToken = getenv('FB_ACCESS_TOKEN') ?: '';
+$facebookDebug = [];
 if ($fbToken !== '') {
     foreach (bhw_config()['facebook_pages'] ?? [] as $page) {
         $query = http_build_query(['fields' => 'message,created_time,permalink_url,full_picture', 'limit' => 10, 'access_token' => $fbToken]);
@@ -79,6 +82,8 @@ if ($fbToken !== '') {
             $err = (string) ($graphError['message'] ?? 'invalid response');
             $err = str_replace($fbToken, '[redacted]', $err);
             $code = isset($graphError['code']) ? ' Graph error ' . (int) $graphError['code'] . '.' : '';
+            $facebookDebug[] = ['page' => $page['name'], 'status' => 'error', 'http_status' => $httpStatus,
+                'error' => trim($code . ' ' . $err)];
             echo "FAILED Facebook {$page['name']}: HTTP {$httpStatus}.{$code} {$err}\n";
             continue;
         }
@@ -97,7 +102,15 @@ if ($fbToken !== '') {
             ]);
             $tally[$r] = ($tally[$r] ?? 0) + 1;
         }
+        $facebookDebug[] = ['page' => $page['name'], 'status' => 'ok', 'posts_checked' => count($posts['data']),
+            'results' => $tally];
+        $anySourceOk = true;
         echo "Facebook {$page['name']}: ", json_encode($tally), "\n";
+    }
+} else {
+    foreach (bhw_config()['facebook_pages'] ?? [] as $page) {
+        $facebookDebug[] = ['page' => $page['name'], 'status' => 'missing_token',
+            'error' => 'GitHub Actions secret FB_ACCESS_TOKEN is empty.'];
     }
 }
 if ($ok > 0) {
@@ -123,6 +136,7 @@ $rows = $db->query("SELECT * FROM reports WHERE state = 'published' ORDER BY pub
 $max = (int) $db->query("SELECT COALESCE(MAX(pub_seq), 0) FROM reports WHERE state = 'published'")->fetchColumn();
 $json = json_encode([
     'generated' => bhw_meta_get($db, 'last_collect') ?? $seed['generated'],
+    'collector' => ['facebook' => $facebookDebug],
     'max_seq' => $max,
     'metrics' => $seed['metrics'] ?? null,
     'items' => array_map('bhw_row_to_item', array_map('bhw_expire_alert', $rows)),
@@ -130,4 +144,4 @@ $json = json_encode([
 file_put_contents("$root/live/feed.json", $json . "\n");
 echo 'Wrote ', count($rows), " reports. $ok of ", count($tried), " feeds worked.\n";
 // A red run in the Actions tab means every source failed, while the last good feed stays online.
-exit($ok > 0 ? 0 : 1);
+exit($anySourceOk ? 0 : 1);

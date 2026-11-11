@@ -97,8 +97,12 @@ button{cursor:pointer}
 .page-head p{margin:4px 0 0;color:var(--muted)}
 .freshness{display:flex;gap:8px;align-items:flex-start;padding-block:10px;background:var(--surface);color:var(--muted);font-size:14px;border-bottom:1px solid var(--line)}
 .freshness.stale{background:var(--amber-soft);color:var(--amber)}
-.freshness{justify-content:space-between;align-items:center}
+.freshness{justify-content:flex-start;align-items:center;flex-wrap:wrap}
 .refresh{appearance:none;flex:none;min-height:36px;padding:0 10px;background:none;border:1px solid var(--line);border-radius:6px;color:var(--link);font-weight:700;font-size:14px}
+.refresh.collect{display:inline-flex;align-items:center;text-decoration:none}
+.feed-debug{padding-block:8px;color:var(--muted);font-size:13px;border-bottom:1px solid var(--line)}
+.feed-debug summary{cursor:pointer;font-weight:700;color:var(--link)}
+.feed-debug p{margin:8px 0;overflow-wrap:anywhere}
 .update{display:block;padding-block:12px;background:var(--amber-soft);color:var(--ink);font-weight:700}
 .thumb{display:block;width:100%;max-height:190px;object-fit:cover;border-radius:6px;margin-bottom:10px;background:var(--surface)}
 .hero-img{margin:12px 0}
@@ -221,7 +225,7 @@ var FEED=(native_&&native_.getFeedUrl&&native_.getFeedUrl())||window.BHW_FEED_UR
 var RELEASE_API="https://api.github.com/repos/Hanes22/BOHOL-HEALTH-WATCH/releases/latest";
 var APK_URL="https://github.com/Hanes22/BOHOL-HEALTH-WATCH/releases/latest/download/BoholHealthWatch.apk";
 var seenSeq=0,notifyOn=true,seenBaseSet=false,seenBaseVal=0;
-var fetchedAt=0,feedFailed=false,refreshing=false,lastJson="",newVersion=false;
+var fetchedAt=0,feedFailed=false,refreshing=false,lastJson="",lastFetchError="",lastFetchHttp=0,newVersion=false;
 var S={tab:"home",cat:"all",q:"",showAll:false,mapTown:null,prefs:{town:"",local:true,province:true,good:true,cats:Object.keys(CATS).filter(function(c){return c!=="good"})}};
 
 function loadPrefs(){try{var p=JSON.parse(localStorage.getItem("bhw.prefs")||"null");if(p&&typeof p==="object"){for(var k in S.prefs)if(k in p)S.prefs[k]=p[k]}}catch(e){}
@@ -245,11 +249,14 @@ function row(it){var town=S.prefs.town;return '<li><button class="row gutter" da
 function freshness(){var gen=data.generated;var age=Math.floor((Date.now()-day(gen).getTime())/864e5);var stale=age>3;
   var msg;
   if(!FEED)msg="Reports checked up to "+fmt(gen)+". This copy does not update by itself.";
-  else if(feedFailed)msg=(live?"No connection. Showing news saved "+clock(fetchedAt)+".":"No connection. Showing reports from "+fmt(gen)+".");
-  else if(live)msg="Live news. Checked "+clock(fetchedAt)+".";
+  else if(feedFailed)msg=(live?"Feed check failed. Showing news saved "+clock(fetchedAt)+".":"Feed check failed. Showing reports from "+fmt(gen)+".");
+  else if(live)msg="Feed checked "+clock(fetchedAt)+".";
   else msg="Checking for the latest news...";
   if(stale&&(!FEED||live))msg="The newest update is "+age+" days old. Check the sources for newer information.";
-  return (newVersion?'<a class="update gutter" href="'+esc(APK_URL)+'" target="_blank" rel="noopener">A new app version is ready. Tap to download it.</a>':'')+'<div class="freshness gutter'+(stale?' stale':'')+'" role="status"><span>'+esc(msg)+'</span>'+(FEED?'<button class="refresh" data-refresh>'+(refreshing?'Checking...':'Refresh')+'</button>':'')+'</div>'}
+  var fb=(data.collector&&data.collector.facebook)||[],fbText=fb.length?fb.map(function(x){return x.page+": "+(x.status==="ok"?"checked "+(x.posts_checked||0)+" posts; "+JSON.stringify(x.results||{}):((x.error||x.status))) }).join(" · "):"No collector diagnostics in this feed yet.";
+  var pageCount=data.items.filter(function(i){return i.source&&/BOHOL news/i.test(i.source.name||"")}).length;
+  var diagnostics='Last app fetch: '+(fetchedAt?clock(fetchedAt):'not completed')+(lastFetchHttp?' (HTTP '+lastFetchHttp+')':'')+'. '+(lastFetchError?'Error: '+lastFetchError+'. ':'')+'Facebook collector: '+fbText+' Facebook Page posts currently in feed: '+pageCount+'.';
+  return (newVersion?'<a class="update gutter" href="'+esc(APK_URL)+'" target="_blank" rel="noopener">A new app version is ready. Tap to download it.</a>':'')+'<div class="freshness gutter'+(stale?' stale':'')+'" role="status"><span>'+esc(msg)+'</span>'+(FEED?'<button class="refresh" data-refresh>'+(refreshing?'Checking...':'Check feed')+'</button><a class="refresh collect" href="https://github.com/Hanes22/BOHOL-HEALTH-WATCH/actions/workflows/update-news.yml" target="_blank" rel="noopener">Collect Page posts</a>':'')+'</div><details class="feed-debug gutter"><summary>Feed diagnostics</summary><p>'+esc(diagnostics)+'</p>'+(FEED?'<p>To fetch directly from Facebook, open “Collect Page posts”, sign in to GitHub, choose <strong>Run workflow</strong>, wait for it to finish, then tap “Check feed”.</p>':'')+'</details>'}
 function clock(ms){if(!ms)return "earlier";var d=new Date(ms),now=new Date();var t=d.toLocaleTimeString("en-PH",{hour:"numeric",minute:"2-digit"});return d.toDateString()===now.toDateString()?"at "+t:"on "+d.toLocaleDateString("en-GB",{day:"numeric",month:"short"})+" at "+t}
 function cats(list){var seen={};list.forEach(function(i){seen[i.category]=1});return ["all"].concat(Object.keys(CATS).filter(function(c){return seen[c]}))}
 function chips(list){if(S.cat!=="all"&&!list.some(function(i){return i.category===S.cat}))S.cat="all";return '<div class="chips gutter" role="group" aria-label="Filter by topic">'+cats(list).map(function(c){return '<button class="chip" data-cat="'+c+'" aria-pressed="'+(S.cat===c)+'">'+esc(c==="all"?"All topics":CATS[c])+'</button>'}).join("")+'</div>'}
@@ -355,7 +362,7 @@ function applyFeed(j){if(!j||!Array.isArray(j.items)||!j.items.length)return fal
 function seenBase(){if(!seenBaseSet){seenBaseSet=true;seenBaseVal=markSeen()}else markSeen();return seenBaseVal}
 function repaint(){var q=document.activeElement&&document.activeElement.id==="q";if(q){var bar=document.querySelector(".freshness");if(bar)bar.outerHTML=freshness();return}var keep=window.scrollY;render();window.scrollTo(0,keep);if(location.hash.indexOf("#report-")===0)route()}
 function refresh(manual){if(!FEED||refreshing)return;refreshing=true;if(manual)repaint();
-  fetch(FEED+(FEED.indexOf("?")<0?"?":"&")+"t="+Date.now(),{cache:"no-store"}).then(function(r){if(!r.ok)throw new Error(r.status);return r.text()}).then(function(txt){var j=JSON.parse(txt);refreshing=false;feedFailed=false;fetchedAt=Date.now();if(applyFeed(j)){lastJson=txt;try{localStorage.setItem("bhw.feed",txt);localStorage.setItem("bhw.feedAt",String(fetchedAt))}catch(e){}}repaint()}).catch(function(){refreshing=false;feedFailed=true;repaint()})}
+  lastFetchError="";lastFetchHttp=0;fetch(FEED+(FEED.indexOf("?")<0?"?":"&")+"t="+Date.now(),{cache:"no-store"}).then(function(r){lastFetchHttp=r.status;if(!r.ok)throw new Error("HTTP "+r.status);return r.text()}).then(function(txt){var j=JSON.parse(txt);if(!Array.isArray(j.items))throw new Error("Feed JSON has no items list");refreshing=false;feedFailed=false;fetchedAt=Date.now();if(applyFeed(j)){lastJson=txt;try{localStorage.setItem("bhw.feed",txt);localStorage.setItem("bhw.feedAt",String(fetchedAt))}catch(e){}}repaint()}).catch(function(e){refreshing=false;feedFailed=true;lastFetchError=e&&e.message?e.message:String(e);repaint()})}
 function loadSavedFeed(){try{var t=localStorage.getItem("bhw.feed");if(t&&applyFeed(JSON.parse(t))){fetchedAt=Number(localStorage.getItem("bhw.feedAt"))||0}}catch(e){}}
 function checkAppVersion(){if(!native_||!native_.getVersionCode)return;var mine=Number(native_.getVersionCode());fetch(RELEASE_API,{cache:"no-store"}).then(function(r){return r.ok?r.json():null}).then(function(j){var m=j&&/^build-(\d+)$/.exec(j.tag_name||"");if(m&&Number(m[1])>mine){newVersion=true;repaint()}}).catch(function(){})}
 window.bhwRefresh=function(){refresh(false)};
