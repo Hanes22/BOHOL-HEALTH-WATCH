@@ -1,6 +1,19 @@
 {
     "generated": "2026-11-11",
-    "max_seq": 20,
+    "collector": {
+        "facebook": [
+            {
+                "page": "BOHOL news",
+                "status": "ok",
+                "posts_checked": 4,
+                "results": {
+                    "stored_published": 1,
+                    "duplicate": 3
+                }
+            }
+        ]
+    },
+    "max_seq": 21,
     "metrics": {
         "dengue": {
             "cases": 1883,
@@ -46,6 +59,24 @@
         }
     },
     "items": [
+        {
+            "seq": 21,
+            "id": "test-3-75f4862c",
+            "title": "test 3",
+            "date": "2026-11-11",
+            "category": "services",
+            "trust": "news",
+            "alert": null,
+            "scope": "national",
+            "municipalities": [],
+            "summary": "test 3",
+            "facts": [],
+            "source": {
+                "name": "BOHOL news",
+                "url": "https://www.facebook.com/122108275887537045/posts/122108300439537045"
+            },
+            "notify": false
+        },
         {
             "seq": 20,
             "id": "test-2-e89413ba",
