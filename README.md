@@ -31,10 +31,10 @@ This repo must stay **public**, because the app reads its news from it.
 1. Push or upload this folder to `main`, including `.github`, `live` and `android/app/debug.keystore`.
 2. **Build APK** runs by itself. Each build is published at
    `https://github.com/Hanes22/BOHOL-HEALTH-WATCH/releases/latest/download/BoholHealthWatch.apk`
-3. **Update news** runs about every 15 minutes and writes `live/feed.json`. Start it once by hand from the Actions tab.
+3. **Update news** runs about every 5 minutes and writes `live/feed.json`. Start it once by hand from the Actions tab.
 4. If "Update news" can't push, set Settings > Actions > General > Workflow permissions to "Read and write".
 
-The app reads the feed when opened, when reopened, every 5 minutes while open, and in the background about every 15 minutes. GitHub can delay scheduled runs, so expect news within roughly 15 to 45 minutes, not instantly.
+The app reads the feed when opened, when reopened, and about every minute while open. Android background checks run about every 15 minutes. GitHub may delay scheduled runs, so updates are not guaranteed to arrive on an exact minute.
 
 ### Change figures or alerts
 Edit `data/seed.json` on GitHub. The next "Update news" run applies it to everyone, with no new APK. Figures, alert status and manual Official labels come only from that file.

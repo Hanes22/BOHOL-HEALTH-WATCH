@@ -365,7 +365,7 @@ window.bhwRefresh=function(){refresh(false)};
 loadPrefs();savePrefs();
 S.tab=(function(){var h=location.hash.replace(/^#/,"");return TABS.some(function(t){return t[0]===h})?h:"home"})();
 readNotify();loadSavedFeed();render();route();refresh(false);checkAppVersion();
-if(FEED){setInterval(function(){if(!document.hidden)refresh(false)},300000);document.addEventListener("visibilitychange",function(){if(!document.hidden&&Date.now()-fetchedAt>60000)refresh(false)})}
+if(FEED){setInterval(function(){if(!document.hidden)refresh(false)},60000);document.addEventListener("visibilitychange",function(){if(!document.hidden&&Date.now()-fetchedAt>60000)refresh(false)})}
 </script>
 
 </body></html>
