@@ -10,7 +10,7 @@
             }
         ]
     },
-    "max_seq": 21,
+    "max_seq": 22,
     "metrics": {
         "dengue": {
             "cases": 1883,
@@ -56,6 +56,27 @@
         }
     },
     "items": [
+        {
+            "seq": 22,
+            "id": "town-news-lila-595aa43f",
+            "title": "TOWN NEWS-LILA",
+            "date": "2026-11-15",
+            "category": "vaccination",
+            "trust": "news",
+            "alert": null,
+            "scope": "municipal",
+            "municipalities": [
+                "Lila"
+            ],
+            "summary": "Barangay Cayupo placed Top 5 in Central Visayas for 100% immunization coverage in MR-SIA 2026, while LGU Lila placed Top... The post TOWN NEWS-LILA appeared first on Bohol Tribune.",
+            "facts": [],
+            "source": {
+                "name": "The Bohol Tribune",
+                "url": "https://theboholtribune.com/2026/11/15/town-news-lila-180/"
+            },
+            "notify": true,
+            "image": "https://i0.wp.com/theboholtribune.com/wp-content/uploads/2026/11/image-106.png?resize=343%2C240&ssl=1"
+        },
         {
             "seq": 21,
             "id": "test-3-75f4862c",
