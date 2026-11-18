@@ -10,7 +10,7 @@
             }
         ]
     },
-    "max_seq": 22,
+    "max_seq": 23,
     "metrics": {
         "dengue": {
             "cases": 1883,
@@ -56,6 +56,26 @@
         }
     },
     "items": [
+        {
+            "seq": 23,
+            "id": "dengue-cases-surge-in-eastern-visayas-bohol-fba6e4e1",
+            "title": "Dengue cases surge in Eastern Visayas, Bohol",
+            "date": "2026-11-19",
+            "category": "dengue",
+            "trust": "news",
+            "alert": "watch",
+            "scope": "province",
+            "municipalities": [],
+            "summary": "TACLOBAN CITY, LEYTE, Philippines — The Department of Health (DOH) in Eastern Visayas is calling for intensified community-wide efforts to eliminate mosquito breeding sites as dengue infections in the region more than doubled compared with…",
+            "facts": [],
+            "source": {
+                "name": "Philippine Daily Inquirer",
+                "url": "https://newsinfo.inquirer.net/2343540/dengue-cases-surge-in-eastern-visayas-bohol"
+            },
+            "notify": true,
+            "image": "https://newsinfo.inquirer.net/files/2022/05/Dengue-cases.png",
+            "alertNote": "From a news report. Health officials have not confirmed this here."
+        },
         {
             "seq": 22,
             "id": "town-news-lila-595aa43f",
