@@ -10,7 +10,7 @@
             }
         ]
     },
-    "max_seq": 23,
+    "max_seq": 24,
     "metrics": {
         "dengue": {
             "cases": 1883,
@@ -56,6 +56,27 @@
         }
     },
     "items": [
+        {
+            "seq": 24,
+            "id": "town-news-cortes-d97ca3fb",
+            "title": "TOWN NEWS-CORTES",
+            "date": "2026-11-22",
+            "category": "services",
+            "trust": "news",
+            "alert": null,
+            "scope": "municipal",
+            "municipalities": [
+                "Cortes"
+            ],
+            "summary": "On Nov. 10, 2026, the Municipal Health Office of Cortes, under Cortes Mayor Rodrigo Dennis Uy (inset, upper left corner),... The post TOWN NEWS-CORTES appeared first on Bohol Tribune.",
+            "facts": [],
+            "source": {
+                "name": "The Bohol Tribune",
+                "url": "https://theboholtribune.com/2026/11/22/town-news-cortes-43/"
+            },
+            "notify": true,
+            "image": "https://i0.wp.com/theboholtribune.com/wp-content/uploads/2026/11/image-157.png?resize=411%2C177&ssl=1"
+        },
         {
             "seq": 23,
             "id": "dengue-cases-surge-in-eastern-visayas-bohol-fba6e4e1",
