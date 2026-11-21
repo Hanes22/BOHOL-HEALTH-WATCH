@@ -10,7 +10,7 @@
             }
         ]
     },
-    "max_seq": 24,
+    "max_seq": 25,
     "metrics": {
         "dengue": {
             "cases": 1883,
@@ -56,6 +56,28 @@
         }
     },
     "items": [
+        {
+            "seq": 25,
+            "id": "city-news-04e824f7",
+            "title": "CITY NEWS",
+            "date": "2026-11-22",
+            "category": "respiratory",
+            "trust": "news",
+            "alert": null,
+            "scope": "municipal",
+            "municipalities": [
+                "Tagbilaran City"
+            ],
+            "summary": "TCPCF wins national award for TB notification The Tagbilaran City Primary Care Facility (TCPCF) was recognized for its tuberculosis control... The post CITY NEWS appeared first on Bohol Tribune.",
+            "facts": [],
+            "source": {
+                "name": "The Bohol Tribune",
+                "url": "https://theboholtribune.com/2026/11/22/city-news-291/"
+            },
+            "notify": true,
+            "image": "https://i0.wp.com/theboholtribune.com/wp-content/uploads/2026/11/image-173.png?resize=440%2C265&ssl=1",
+            "tone": "good"
+        },
         {
             "seq": 24,
             "id": "town-news-cortes-d97ca3fb",
