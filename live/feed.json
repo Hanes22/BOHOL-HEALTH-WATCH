@@ -10,7 +10,7 @@
             }
         ]
     },
-    "max_seq": 25,
+    "max_seq": 27,
     "metrics": {
         "dengue": {
             "cases": 1883,
@@ -56,6 +56,45 @@
         }
     },
     "items": [
+        {
+            "seq": 27,
+            "id": "medical-insider-dr-ria-p-maslog-ac5387fb",
+            "title": "Medical Insider – Dr. Ria P. Maslog",
+            "date": "2026-11-22",
+            "category": "respiratory",
+            "trust": "news",
+            "alert": "watch",
+            "scope": "province",
+            "municipalities": [],
+            "summary": "Clinic Visits There are lots of clinic visits this time because of the rise in the cases of respiratory infections,... The post Medical Insider – Dr. Ria P. Maslog appeared first on Bohol Tribune.",
+            "facts": [],
+            "source": {
+                "name": "The Bohol Tribune",
+                "url": "https://theboholtribune.com/2026/11/22/medical-insider-dr-ria-p-maslog-329/"
+            },
+            "notify": true,
+            "image": "https://theboholtribune.com/wp-content/uploads/2026/11/image-19.png",
+            "alertNote": "From a news report. Health officials have not confirmed this here."
+        },
+        {
+            "seq": 26,
+            "id": "medical-insider-dr-bryan-cepedoza-0ef50379",
+            "title": "Medical Insider – Dr. Bryan Cepedoza",
+            "date": "2026-11-22",
+            "category": "respiratory",
+            "trust": "news",
+            "alert": null,
+            "scope": "province",
+            "municipalities": [],
+            "summary": "Most Common Questions People Ask about Tuberculosis This week, allow me to provide the answers to the most common questions people... The post Medical Insider – Dr. Bryan Cepedoza appeared first on Bohol Tribune.",
+            "facts": [],
+            "source": {
+                "name": "The Bohol Tribune",
+                "url": "https://theboholtribune.com/2026/11/22/medical-insider-dr-bryan-cepedoza-213/"
+            },
+            "notify": true,
+            "image": "https://theboholtribune.com/wp-content/uploads/2026/11/image-22.png"
+        },
         {
             "seq": 25,
             "id": "city-news-04e824f7",
