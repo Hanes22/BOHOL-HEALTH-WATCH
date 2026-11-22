@@ -10,7 +10,7 @@
             }
         ]
     },
-    "max_seq": 27,
+    "max_seq": 28,
     "metrics": {
         "dengue": {
             "cases": 1883,
@@ -56,6 +56,25 @@
         }
     },
     "items": [
+        {
+            "seq": 28,
+            "id": "doh-undersecretary-domingo-visits-philippine-red-cross-bohol-56263c13",
+            "title": "DOH Undersecretary Domingo Visits Philippine Red Cross Bohol, Strengthens Dialogue on Blood Services and Healthcare Collaboration",
+            "date": "2026-11-22",
+            "category": "services",
+            "trust": "news",
+            "alert": null,
+            "scope": "province",
+            "municipalities": [],
+            "summary": "The Philippine Red Cross (PRC) – Bohol welcomed Department of Health (DOH) Undersecretary Dr. Albert Francis E. Domingo, MD, MSc,... The post DOH Undersecretary Domingo Visits Philippine Red Cross Bohol, Strengthens Dialogue on Blood…",
+            "facts": [],
+            "source": {
+                "name": "The Bohol Tribune",
+                "url": "https://theboholtribune.com/2026/11/22/doh-undersecretary-domingo-visits-philippine-red-cross-bohol-strengthens-dialogue-on-blood-services-and-healthcare-collaboration/"
+            },
+            "notify": true,
+            "image": "https://i0.wp.com/theboholtribune.com/wp-content/uploads/2026/11/image-184.png?resize=682%2C258&ssl=1"
+        },
         {
             "seq": 27,
             "id": "medical-insider-dr-ria-p-maslog-ac5387fb",
